@@ -67,3 +67,14 @@ export function isAfterDate(dateA: string, dateB: string): boolean {
 export function isSameDate(dateA: string, dateB: string): boolean {
   return isEqual(parseISODate(dateA), parseISODate(dateB));
 }
+
+export function formatDisplayDate(dateString: string): string {
+  const date = parseISODate(dateString);
+  return format(date, 'EEEE, d MMMM yyyy');
+}
+
+export function formatDisplayDateShort(dateString: string): string {
+  const date = parseISODate(dateString);
+  return format(date, 'd MMM yyyy');
+}
+
