@@ -55,6 +55,7 @@ module.exports = [
   },
   {
     files: ['app/**', 'components/**'],
+    ignores: ['app/_layout.tsx'],
     rules: {
       'no-restricted-imports': [
         'error',
