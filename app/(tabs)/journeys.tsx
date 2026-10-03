@@ -21,6 +21,7 @@ import { useAppStore } from '../../stores/useAppStore';
 import { useJourneyStore } from '../../stores/useJourneyStore';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
+import { fontFamilies } from '../../theme/typography';
 
 export default function JourneysScreen() {
   const router = useRouter();
@@ -105,6 +106,7 @@ export default function JourneysScreen() {
         data={journeyItems}
         keyExtractor={(item) => item.journey.id}
         contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
         renderItem={({ item }) => (
           <JourneyCard
             journey={item.journey}
@@ -123,8 +125,8 @@ export default function JourneysScreen() {
         )}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Crescent size={64} opacity={0.3} />
-            <Text style={styles.emptyTitle}>No Journeys</Text>
+            <Crescent size={64} opacity={0.25} />
+            <Text style={styles.emptyTitle}>No Journeys Yet</Text>
             <Text style={styles.emptySubtitle}>
               Create your first spiritual journey to begin.
             </Text>
@@ -132,14 +134,14 @@ export default function JourneysScreen() {
         }
       />
 
-      {/* Floating "+" Button */}
+      {/* Floating "+" Button - sits comfortably above the floating tab pill */}
       <Pressable
         style={styles.fab}
         onPress={() => router.push('/journey/new')}
         accessibilityRole="button"
         accessibilityLabel="Create new journey"
       >
-        <Plus size={26} color={colors.bg} strokeWidth={2.5} />
+        <Plus size={26} color="#050505" strokeWidth={2.5} />
       </Pressable>
     </SafeAreaView>
   );
@@ -156,18 +158,20 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.md,
   },
   headerTitle: {
-    fontFamily: 'CormorantGaramond_600SemiBold',
-    fontSize: 32,
+    fontFamily: fontFamilies.display,
+    fontSize: 30,
+    letterSpacing: -0.8,
     color: colors.gold,
   },
   headerSubtitle: {
+    fontFamily: fontFamilies.body,
     fontSize: 13,
     color: colors.textMuted,
     marginTop: 2,
   },
   listContent: {
     padding: spacing.screenPadding,
-    paddingBottom: 90,
+    paddingBottom: 110, // clear floating tab pill
     gap: spacing.lg,
   },
   emptyContainer: {
@@ -177,11 +181,13 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   emptyTitle: {
-    fontFamily: 'CormorantGaramond_600SemiBold',
-    fontSize: 26,
-    color: colors.gold,
+    fontFamily: fontFamilies.display,
+    fontSize: 24,
+    color: colors.text,
+    letterSpacing: -0.5,
   },
   emptySubtitle: {
+    fontFamily: fontFamilies.body,
     fontSize: 14,
     color: colors.textMuted,
     textAlign: 'center',
@@ -189,17 +195,17 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: 20,
-    bottom: 24,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    bottom: 86, // Floats cleanly above the floating tab bar pill
+    width: 54,
+    height: 54,
+    borderRadius: 27,
     backgroundColor: colors.gold,
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 4,
+    elevation: 5,
     shadowColor: colors.gold,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
   },
 });

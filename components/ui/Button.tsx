@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { colors } from '../../theme/colors';
 import { layout, radius, spacing } from '../../theme/spacing';
+import { fontFamilies } from '../../theme/typography';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 
@@ -67,7 +68,7 @@ export function Button({
 const styles = StyleSheet.create({
   base: {
     minHeight: layout.minTouchTarget,
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: spacing.xl,
     paddingVertical: spacing.md,
     borderRadius: radius.md,
     alignItems: 'center',
@@ -76,39 +77,46 @@ const styles = StyleSheet.create({
   },
   textBase: {
     fontSize: 15,
+    fontFamily: fontFamilies.labelStrong,
+    letterSpacing: 0.2,
   },
   pressed: {
     transform: [{ scale: 0.98 }],
-    opacity: 0.9,
+    opacity: 0.88,
   },
   disabled: {
-    opacity: 0.4,
+    opacity: 0.35,
   },
   primary: {
     backgroundColor: colors.gold,
+    shadowColor: colors.gold,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 3,
   },
   secondary: {
-    backgroundColor: colors.surfaceRaised,
+    backgroundColor: colors.surfaceGlass,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.borderSubtle,
   },
   ghost: {
     backgroundColor: 'transparent',
   },
   danger: {
-    backgroundColor: colors.surfaceRaised,
+    backgroundColor: 'rgba(239, 68, 68, 0.12)',
     borderWidth: 1,
-    borderColor: colors.danger,
+    borderColor: 'rgba(239, 68, 68, 0.3)',
   },
 });
 
 const textStyles = StyleSheet.create({
   primary: {
-    color: colors.bg,
-    fontWeight: '600',
+    color: '#050505',
+    fontWeight: '700',
   },
   secondary: {
-    color: colors.gold,
+    color: colors.text,
     fontWeight: '600',
   },
   ghost: {

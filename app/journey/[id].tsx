@@ -31,6 +31,7 @@ import { useAppStore } from '../../stores/useAppStore';
 import { colors } from '../../theme/colors';
 import { glowLevels } from '../../theme/glow';
 import { radius, spacing } from '../../theme/spacing';
+import { fontFamilies } from '../../theme/typography';
 
 export default function JourneyDetailScreen() {
   const router = useRouter();
@@ -385,9 +386,10 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   headerTitle: {
-    fontFamily: 'CormorantGaramond_600SemiBold',
-    fontSize: 22,
-    color: colors.gold,
+    fontFamily: fontFamilies.heading,
+    fontSize: 18,
+    letterSpacing: -0.3,
+    color: colors.text,
     textAlign: 'center',
   },
   headerActions: {
@@ -398,9 +400,9 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: radius.md,
-    backgroundColor: colors.surfaceRaised,
+    backgroundColor: colors.surfaceGlass,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.borderSubtle,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -435,18 +437,19 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   ringDayText: {
-    fontFamily: 'CormorantGaramond_600SemiBold',
+    fontFamily: fontFamilies.heading,
     fontSize: 18,
+    letterSpacing: -0.2,
     color: colors.gold,
   },
   statsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surfaceRaised,
+    backgroundColor: colors.surfaceGlass,
     marginHorizontal: spacing.lg,
     borderRadius: radius.card,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.borderSubtle,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.sm,
   },
@@ -505,8 +508,9 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   sectionTitle: {
-    fontFamily: 'CormorantGaramond_600SemiBold',
-    fontSize: 20,
+    fontFamily: fontFamilies.heading,
+    fontSize: 18,
+    letterSpacing: -0.2,
     color: colors.gold,
   },
   sectionSubtitle: {
@@ -583,11 +587,11 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
   gridCard: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceGlass,
     padding: spacing.md,
     borderRadius: radius.card,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.borderSubtle,
   },
   footerActions: {
     alignItems: 'center',
@@ -610,7 +614,7 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
   },
   notFoundTitle: {
-    fontFamily: 'CormorantGaramond_600SemiBold',
+    fontFamily: fontFamilies.display,
     fontSize: 24,
     color: colors.gold,
     marginBottom: spacing.sm,

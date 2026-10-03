@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { ProgressRing } from '../../components/ring/ProgressRing';
 import { TaskCard } from '../../components/tasks/TaskCard';
+import { Button } from '../../components/ui/Button';
 import { Crescent } from '../../components/ui/Crescent';
 import { StreakBadge } from '../../components/journey/StreakBadge';
 import { useToday } from '../../hooks/useToday';
@@ -17,6 +18,7 @@ import { ActiveJourneyToday, useTodayViewModel } from '../../hooks/useTodayViewM
 import { useServices } from '../../services/ServicesContext';
 import { colors } from '../../theme/colors';
 import { radius, spacing } from '../../theme/spacing';
+import { fontFamilies } from '../../theme/typography';
 
 export default function TodayScreen() {
   const router = useRouter();
@@ -49,28 +51,29 @@ export default function TodayScreen() {
         data={activeJourneys}
         keyExtractor={(item) => item.journey.id}
         contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
         ListHeaderComponent={
           <View style={styles.headerContainer}>
-            {/* Faint large crescent watermark */}
-            <View style={styles.watermark}>
-              <Crescent size={140} color={colors.gold} opacity={0.04} />
+            {/* Faint watermark crescent */}
+            <View style={styles.watermark} pointerEvents="none">
+              <Crescent size={150} color={colors.gold} opacity={0.05} />
             </View>
 
             {/* Date header */}
             <View style={styles.dateHeader}>
-              <Text style={styles.todayDate}>{today}</Text>
+              <Text style={styles.todayDate}>{today.toUpperCase()}</Text>
               <Text style={styles.hijriDate}>{hijri.formatted}</Text>
             </View>
 
             {/* Overall progress ring */}
             {totalTasks > 0 ? (
               <View style={styles.ringWrapper}>
-                <ProgressRing progress={progressFraction} size={150} strokeWidth={9}>
+                <ProgressRing progress={progressFraction} size={156} strokeWidth={8}>
                   <Text style={styles.ringDoneText}>
-                    {totalDone} / {totalTasks}
+                    {totalDone}<Text style={styles.ringTotalText}>/{totalTasks}</Text>
                   </Text>
                   <Text style={styles.ringSubText}>
-                    {totalDone === totalTasks && totalTasks > 0 ? 'All Sealed!' : 'Tasks Done'}
+                    {totalDone === totalTasks && totalTasks > 0 ? '✦ ALL SEALED' : 'TASKS COMPLETED'}
                   </Text>
                 </ProgressRing>
               </View>
@@ -81,8 +84,9 @@ export default function TodayScreen() {
               <View style={styles.gapAlertsContainer}>
                 {gapAlerts.map((alert) => (
                   <View key={`${alert.journeyId}-${alert.dayNumber}`} style={styles.gapBanner}>
+                    <Text style={styles.gapBannerTitle}>Notice</Text>
                     <Text style={styles.gapBannerText}>
-                      Yesterday was missed in {alert.journeyName}. Add a reason or make up.
+                      Yesterday was missed in {alert.journeyName}. You can add a reason or make up missed tasks.
                     </Text>
                   </View>
                 ))}
@@ -121,7 +125,7 @@ export default function TodayScreen() {
                     <Text style={styles.sealedCheck}>✓</Text>
                     <Text style={styles.sealedCollapseText}>Sealed for today</Text>
                   </View>
-                  <Text style={styles.expandHint}>Tap to view</Text>
+                  <Text style={styles.expandHint}>View tasks</Text>
                 </Pressable>
               ) : (
                 <View style={styles.taskList}>
@@ -151,19 +155,16 @@ export default function TodayScreen() {
         }}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Crescent size={64} opacity={0.3} />
-            <Text style={styles.emptyTitle}>No journeys today</Text>
+            <Crescent size={64} opacity={0.25} />
+            <Text style={styles.emptyTitle}>No Journeys Active</Text>
             <Text style={styles.emptySubtitle}>
-              Begin your first spiritual challenge with daily tasks.
+              Begin your spiritual discipline with clear daily commitments.
             </Text>
-            <Pressable
-              style={styles.createButton}
+            <Button
+              title="Create a Journey"
               onPress={() => router.push('/journey/new')}
-              accessibilityRole="button"
-              accessibilityLabel="Create journey"
-            >
-              <Text style={styles.createButtonText}>Create a Journey</Text>
-            </Pressable>
+              style={styles.emptyButton}
+            />
           </View>
         }
       />
@@ -178,7 +179,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: spacing.screenPadding,
-    paddingBottom: 40,
+    paddingBottom: 110, // clear floating tab pill
     gap: spacing.xl,
   },
   headerContainer: {
@@ -187,7 +188,7 @@ const styles = StyleSheet.create({
   },
   watermark: {
     position: 'absolute',
-    top: -20,
+    top: -10,
     right: -10,
     zIndex: -1,
   },
@@ -195,49 +196,69 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
   },
   todayDate: {
-    fontSize: 14,
+    fontSize: 12,
+    fontFamily: fontFamilies.labelStrong,
     color: colors.textMuted,
-    fontWeight: '500',
+    letterSpacing: 1.2,
   },
   hijriDate: {
-    fontFamily: 'CormorantGaramond_600SemiBold',
-    fontSize: 28,
+    fontFamily: fontFamilies.display,
+    fontSize: 30,
+    letterSpacing: -0.8,
     color: colors.gold,
-    marginTop: 2,
+    marginTop: 4,
   },
   ringWrapper: {
     alignItems: 'center',
     marginVertical: spacing.md,
   },
   ringDoneText: {
-    fontFamily: 'CormorantGaramond_600SemiBold',
-    fontSize: 34,
+    fontFamily: fontFamilies.numeral,
+    fontSize: 36,
+    letterSpacing: -1,
     color: colors.gold,
   },
-  ringSubText: {
-    fontSize: 12,
+  ringTotalText: {
+    fontFamily: fontFamilies.heading,
+    fontSize: 22,
     color: colors.textMuted,
+  },
+  ringSubText: {
+    fontFamily: fontFamilies.labelStrong,
+    fontSize: 10,
+    color: colors.textMuted,
+    letterSpacing: 1.2,
     marginTop: 2,
   },
   gapAlertsContainer: {
-    gap: spacing.xs,
+    gap: spacing.sm,
   },
   gapBanner: {
-    backgroundColor: colors.surfaceRaised,
+    backgroundColor: colors.surfaceGlass,
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: colors.gap,
+    borderColor: 'rgba(239, 68, 68, 0.25)',
     padding: spacing.md,
   },
+  gapBannerTitle: {
+    fontFamily: fontFamilies.labelStrong,
+    fontSize: 11,
+    color: colors.danger,
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+    marginBottom: 2,
+  },
   gapBannerText: {
+    fontFamily: fontFamilies.body,
     color: colors.text,
     fontSize: 13,
+    lineHeight: 18,
   },
   journeySection: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceGlass,
     borderRadius: radius.card,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.borderSubtle,
     padding: spacing.lg,
     gap: spacing.md,
   },
@@ -248,15 +269,18 @@ const styles = StyleSheet.create({
   },
   journeyTitleCol: {
     flex: 1,
+    marginRight: spacing.sm,
   },
   journeyName: {
-    fontFamily: 'CormorantGaramond_600SemiBold',
-    fontSize: 22,
+    fontFamily: fontFamilies.heading,
+    fontSize: 19,
+    letterSpacing: -0.3,
     color: colors.text,
   },
   dayNumberText: {
+    fontFamily: fontFamilies.label,
     fontSize: 13,
-    color: colors.textMuted,
+    color: colors.goldSoft,
     marginTop: 2,
   },
   journeyHeaderRight: {
@@ -266,10 +290,10 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   sealedCollapseBanner: {
-    backgroundColor: colors.surfaceRaised,
+    backgroundColor: 'rgba(245, 158, 11, 0.08)',
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: colors.goldDim,
+    borderColor: 'rgba(245, 158, 11, 0.22)',
     padding: spacing.md,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -286,11 +310,12 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   sealedCollapseText: {
-    color: colors.goldSoft,
+    fontFamily: fontFamilies.labelStrong,
+    color: colors.gold,
     fontSize: 14,
-    fontWeight: '600',
   },
   expandHint: {
+    fontFamily: fontFamilies.label,
     fontSize: 12,
     color: colors.textMuted,
   },
@@ -301,6 +326,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
   },
   collapseHintText: {
+    fontFamily: fontFamilies.label,
     color: colors.textMuted,
     fontSize: 12,
   },
@@ -311,26 +337,20 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   emptyTitle: {
-    fontFamily: 'CormorantGaramond_600SemiBold',
-    fontSize: 26,
-    color: colors.gold,
+    fontFamily: fontFamilies.display,
+    fontSize: 24,
+    color: colors.text,
+    letterSpacing: -0.5,
   },
   emptySubtitle: {
+    fontFamily: fontFamilies.body,
     fontSize: 14,
     color: colors.textMuted,
     textAlign: 'center',
-    maxWidth: 260,
+    maxWidth: 280,
+    lineHeight: 20,
   },
-  createButton: {
+  emptyButton: {
     marginTop: spacing.md,
-    backgroundColor: colors.gold,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.xl,
-    borderRadius: radius.md,
-  },
-  createButtonText: {
-    color: colors.bg,
-    fontSize: 15,
-    fontWeight: '700',
   },
 });

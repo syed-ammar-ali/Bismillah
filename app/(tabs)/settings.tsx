@@ -1,8 +1,11 @@
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { Button } from '../../components/ui/Button';
+import { Crescent } from '../../components/ui/Crescent';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
+import { fontFamilies } from '../../theme/typography';
 
 export default function SettingsTab() {
   const router = useRouter();
@@ -10,26 +13,23 @@ export default function SettingsTab() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
+        <Crescent size={56} opacity={0.25} />
         <Text style={styles.title}>Settings</Text>
-        <Text style={styles.subtitle}>Settings screen will be implemented in Step 10</Text>
+        <Text style={styles.subtitle}>Preferences, Reminders & Data Backup</Text>
 
-        <Pressable
-          style={styles.galleryButton}
-          onPress={() => router.push('/gallery')}
-          accessibilityRole="button"
-          accessibilityLabel="Open Design System Gallery"
-        >
-          <Text style={styles.galleryButtonText}>Open Design System Gallery →</Text>
-        </Pressable>
+        <View style={styles.buttonStack}>
+          <Button
+            title="Design System Gallery →"
+            variant="secondary"
+            onPress={() => router.push('/gallery')}
+          />
 
-        <Pressable
-          style={styles.spikeButton}
-          onPress={() => router.push('/spike')}
-          accessibilityRole="button"
-          accessibilityLabel="Open Native Spike Screen"
-        >
-          <Text style={styles.spikeButtonText}>View Native Spike Screen →</Text>
-        </Pressable>
+          <Button
+            title="Native Spike Screen →"
+            variant="ghost"
+            onPress={() => router.push('/spike')}
+          />
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -45,42 +45,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 24,
-    gap: spacing.md,
+    gap: spacing.sm,
   },
   title: {
-    fontFamily: 'CormorantGaramond_600SemiBold',
+    fontFamily: fontFamilies.display,
     fontSize: 28,
+    letterSpacing: -0.6,
     color: colors.gold,
+    marginTop: 8,
   },
   subtitle: {
+    fontFamily: fontFamilies.body,
     fontSize: 14,
     color: colors.textMuted,
     textAlign: 'center',
-    marginBottom: spacing.lg,
+    marginBottom: spacing.xl,
   },
-  galleryButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    backgroundColor: colors.surfaceRaised,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: colors.gold,
-  },
-  galleryButtonText: {
-    color: colors.goldSoft,
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  spikeButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 18,
-    backgroundColor: colors.surface,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  spikeButtonText: {
-    color: colors.textMuted,
-    fontSize: 13,
+  buttonStack: {
+    gap: spacing.md,
+    width: '100%',
+    maxWidth: 280,
   },
 });

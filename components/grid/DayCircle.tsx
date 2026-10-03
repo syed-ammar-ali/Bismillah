@@ -10,6 +10,7 @@ import Animated, {
 import { DayStatus } from '../../core/types';
 import { colors } from '../../theme/colors';
 import { layout } from '../../theme/spacing';
+import { fontFamilies } from '../../theme/typography';
 
 export interface DayCircleProps {
   dayNumber: number;
@@ -80,19 +81,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   number: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: 12,
+    fontFamily: fontFamilies.numeral,
   },
   gapDash: {
     color: colors.gap,
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: 14,
+    fontFamily: fontFamilies.numeral,
   },
 });
 
 const circleStyles = StyleSheet.create({
   sealed: {
     backgroundColor: colors.gold,
+    shadowColor: colors.gold,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.35,
+    shadowRadius: 4,
+    elevation: 2,
   },
   gap: {
     backgroundColor: 'transparent',
@@ -100,25 +106,26 @@ const circleStyles = StyleSheet.create({
     borderColor: colors.gap,
   },
   madeUp: {
-    backgroundColor: 'transparent',
-    borderWidth: 2,
+    backgroundColor: 'rgba(245, 158, 11, 0.08)',
+    borderWidth: 1.5,
     borderColor: colors.gold,
   },
   today: {
-    backgroundColor: 'transparent',
+    backgroundColor: 'rgba(245, 158, 11, 0.12)',
     borderWidth: 2,
     borderColor: colors.gold,
   },
   future: {
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.borderSubtle,
   },
 });
 
 const numberStyles = StyleSheet.create({
   sealed: {
-    color: colors.bg,
+    color: '#050505',
+    fontWeight: '800',
   },
   gap: {
     color: colors.gap,

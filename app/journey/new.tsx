@@ -5,6 +5,7 @@ import { JourneyForm, JourneyFormData } from '../../components/journey/JourneyFo
 import { useServices } from '../../services/ServicesContext';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
+import { fontFamilies } from '../../theme/typography';
 
 export default function NewJourneyScreen() {
   const router = useRouter();
@@ -85,8 +86,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   title: {
-    fontFamily: 'CormorantGaramond_600SemiBold',
-    fontSize: 28,
+    fontFamily: fontFamilies.display,
+    fontSize: 26,
+    letterSpacing: -0.6,
     color: colors.gold,
     marginTop: 2,
   },

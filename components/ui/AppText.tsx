@@ -3,7 +3,7 @@ import { StyleSheet, Text as RNText, TextProps as RNTextProps } from 'react-nati
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
 
-export type TextVariant = 'display' | 'title' | 'heading' | 'body' | 'caption';
+export type TextVariant = 'display' | 'title' | 'heading' | 'body' | 'caption' | 'numeral';
 export type TextColor = 'default' | 'muted' | 'gold' | 'goldSoft' | 'goldDim' | 'danger' | 'success';
 
 export interface AppTextProps extends RNTextProps {

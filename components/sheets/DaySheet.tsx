@@ -19,6 +19,7 @@ import { useAppStore } from '../../stores/useAppStore';
 import { useJourneyStore } from '../../stores/useJourneyStore';
 import { colors } from '../../theme/colors';
 import { radius, spacing } from '../../theme/spacing';
+import { fontFamilies } from '../../theme/typography';
 import { Sheet } from '../ui/Sheet';
 import { GapReasonInput } from './GapReasonInput';
 
@@ -256,8 +257,9 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   dayTitle: {
-    fontFamily: 'CormorantGaramond_600SemiBold',
-    fontSize: 26,
+    fontFamily: fontFamilies.display,
+    fontSize: 24,
+    letterSpacing: -0.5,
     color: colors.gold,
   },
   statusBadge: {

@@ -8,6 +8,7 @@ import { useAppStore } from '../../../stores/useAppStore';
 import { useJourneyStore } from '../../../stores/useJourneyStore';
 import { colors } from '../../../theme/colors';
 import { spacing } from '../../../theme/spacing';
+import { fontFamilies } from '../../../theme/typography';
 
 export default function EditJourneyScreen() {
   const router = useRouter();
@@ -143,8 +144,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   title: {
-    fontFamily: 'CormorantGaramond_600SemiBold',
-    fontSize: 28,
+    fontFamily: fontFamilies.display,
+    fontSize: 26,
+    letterSpacing: -0.6,
     color: colors.gold,
     marginTop: 2,
   },

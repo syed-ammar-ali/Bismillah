@@ -21,6 +21,7 @@ import { Crescent } from '../components/ui/Crescent';
 import { DayStatus, Journey } from '../core/types';
 import { colors } from '../theme/colors';
 import { spacing } from '../theme/spacing';
+import { fontFamilies } from '../theme/typography';
 
 export default function GalleryScreen() {
   const router = useRouter();
@@ -306,22 +307,24 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   screenTitle: {
-    fontFamily: 'CormorantGaramond_600SemiBold',
-    fontSize: 32,
+    fontFamily: fontFamilies.display,
+    fontSize: 28,
+    letterSpacing: -0.6,
     color: colors.gold,
   },
   subtitle: {
+    fontFamily: fontFamilies.body,
     fontSize: 14,
     color: colors.textMuted,
     marginTop: 2,
   },
   section: {
     gap: spacing.md,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceGlass,
     padding: spacing.lg,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.borderSubtle,
   },
   sectionHeader: {
     fontSize: 16,
@@ -348,8 +351,8 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
   },
   ringCenterText: {
-    fontFamily: 'CormorantGaramond_600SemiBold',
-    fontSize: 36,
+    fontFamily: fontFamilies.numeral,
+    fontSize: 34,
     color: colors.gold,
   },
   ringCenterSub: {

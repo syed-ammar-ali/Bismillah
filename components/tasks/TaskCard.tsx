@@ -6,6 +6,7 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
+import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { colors } from '../../theme/colors';
 import { layout, radius, spacing } from '../../theme/spacing';
 
@@ -28,8 +29,8 @@ export function TaskCard({
 
   useEffect(() => {
     checkScale.value = withSpring(isCompleted ? 1 : 0, {
-      damping: 12,
-      stiffness: 150,
+      damping: 14,
+      stiffness: 180,
     });
   }, [isCompleted, checkScale]);
 
@@ -58,10 +59,35 @@ export function TaskCard({
         disabled && styles.disabled,
       ]}
     >
-      <View style={[styles.checkbox, isCompleted && styles.checkboxCompleted]}>
-        <Animated.Text style={[styles.checkMark, animatedCheckStyle]}>
-          ✓
-        </Animated.Text>
+      {/* Check circle with SVG arc border */}
+      <View style={styles.checkboxWrapper}>
+        {isCompleted ? (
+          <Animated.View style={[styles.checkboxFilled, animatedCheckStyle]}>
+            <Svg width={28} height={28} viewBox="0 0 28 28">
+              <Defs>
+                <LinearGradient id={`checkGrad-${title}`} x1="0" y1="0" x2="1" y2="1">
+                  <Stop offset="0%" stopColor="#F59E0B" />
+                  <Stop offset="100%" stopColor="#FCD34D" />
+                </LinearGradient>
+              </Defs>
+              <Circle cx="14" cy="14" r="13" fill={`url(#checkGrad-${title})`} />
+            </Svg>
+            <Text style={styles.checkMark}>✓</Text>
+          </Animated.View>
+        ) : (
+          <View style={styles.checkboxEmpty}>
+            <Svg width={28} height={28} viewBox="0 0 28 28">
+              <Circle
+                cx="14"
+                cy="14"
+                r="13"
+                fill="none"
+                stroke="rgba(255,255,255,0.15)"
+                strokeWidth="1.5"
+              />
+            </Svg>
+          </View>
+        )}
       </View>
 
       <View style={styles.textContainer}>
@@ -77,6 +103,9 @@ export function TaskCard({
           </Text>
         ) : null}
       </View>
+
+      {/* Completion indicator strip on the right */}
+      {isCompleted ? <View style={styles.completedStrip} /> : null}
     </Pressable>
   );
 }
@@ -84,42 +113,50 @@ export function TaskCard({
 const styles = StyleSheet.create({
   card: {
     height: layout.taskCardHeight,
-    backgroundColor: colors.surface,
-    borderRadius: radius.card,
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: 'rgba(255, 255, 255, 0.07)',
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: spacing.md,
+    overflow: 'hidden',
   },
   cardCompleted: {
-    borderColor: colors.goldDim,
-    backgroundColor: colors.surfaceRaised,
+    backgroundColor: 'rgba(245, 158, 11, 0.07)',
+    borderColor: 'rgba(245, 158, 11, 0.20)',
   },
   pressed: {
     transform: [{ scale: 0.98 }],
-    opacity: 0.9,
+    backgroundColor: 'rgba(255, 255, 255, 0.07)',
   },
   disabled: {
-    opacity: 0.5,
+    opacity: 0.4,
   },
-  checkbox: {
+  checkboxWrapper: {
     width: 28,
     height: 28,
-    borderRadius: 14,
-    borderWidth: 2,
-    borderColor: colors.border,
+    marginRight: spacing.md,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: spacing.md,
   },
-  checkboxCompleted: {
-    backgroundColor: colors.gold,
-    borderColor: colors.gold,
+  checkboxEmpty: {
+    width: 28,
+    height: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkboxFilled: {
+    width: 28,
+    height: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
   },
   checkMark: {
-    color: colors.bg,
-    fontSize: 16,
+    position: 'absolute',
+    color: '#000000',
+    fontSize: 14,
     fontWeight: '800',
   },
   textContainer: {
@@ -127,16 +164,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
+    fontFamily: 'Inter_500Medium',
     fontSize: 15,
-    fontWeight: '500',
     color: colors.text,
+    letterSpacing: -0.1,
   },
   titleCompleted: {
-    color: colors.textMuted,
+    color: 'rgba(255,255,255,0.4)',
   },
   note: {
+    fontFamily: 'Inter_400Regular',
     fontSize: 12,
     color: colors.textMuted,
     marginTop: 2,
+  },
+  completedStrip: {
+    width: 3,
+    height: 28,
+    backgroundColor: colors.gold,
+    borderRadius: 2,
+    marginLeft: spacing.sm,
+    opacity: 0.6,
   },
 });
