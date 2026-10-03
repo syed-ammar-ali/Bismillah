@@ -21,6 +21,9 @@ const config: ExpoConfig = {
     'expo-router',
     'expo-sqlite',
     'expo-notifications',
+    'expo-font',
+    'expo-sharing',
+    'expo-splash-screen',
     [
       'expo-build-properties',
       {
