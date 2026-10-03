@@ -110,6 +110,14 @@ export default function DebugTodayScreen() {
         ListFooterComponent={
           <View style={styles.footer}>
             <Pressable
+              style={styles.galleryButton}
+              onPress={() => router.push('/gallery')}
+              accessibilityRole="button"
+              accessibilityLabel="Open Design System Gallery"
+            >
+              <Text style={styles.galleryButtonText}>Open Design System Gallery →</Text>
+            </Pressable>
+            <Pressable
               style={styles.spikeButton}
               onPress={() => router.push('/spike')}
               accessibilityRole="button"
@@ -231,6 +239,20 @@ const styles = StyleSheet.create({
   footer: {
     marginTop: 24,
     alignItems: 'center',
+    gap: 12,
+  },
+  galleryButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    backgroundColor: colors.goldDim,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.gold,
+  },
+  galleryButtonText: {
+    color: colors.goldSoft,
+    fontSize: 14,
+    fontWeight: '700',
   },
   spikeButton: {
     paddingVertical: 12,
@@ -241,8 +263,8 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   spikeButtonText: {
-    color: colors.gold,
-    fontSize: 14,
-    fontWeight: '600',
+    color: colors.textMuted,
+    fontSize: 13,
+    fontWeight: '500',
   },
 });

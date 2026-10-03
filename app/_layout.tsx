@@ -89,6 +89,7 @@ export default function RootLayout() {
         }}
       >
         <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="gallery" options={{ headerShown: false }} />
         <Stack.Screen name="spike" options={{ title: 'Native Spike' }} />
       </Stack>
     </ServicesProvider>
