@@ -14,6 +14,8 @@ node_modules/
 *.b64
 *.apk
 *.aab
+keystore*
+secrets*
 
 # Logs
 npm-debug.*
