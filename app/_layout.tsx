@@ -8,12 +8,15 @@ import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { db } from '../db/client';
 import migrations from '../db/migrations/migrations';
 import { createRepositories } from '../db/repos';
 import { seedDatabase } from '../db/seed';
+import { getPlatformAdapters } from '../platform';
+import { createServices } from '../services/createServices';
+import { ServicesProvider } from '../services/ServicesContext';
 import { colors } from '../theme/colors';
 
 void SplashScreen.preventAutoHideAsync();
@@ -29,6 +32,15 @@ export default function RootLayout() {
   const { success: migrationsSuccess, error: migrationsError } = useMigrations(db, migrations);
   const [seeded, setSeeded] = useState(!__DEV__);
 
+  const services = useMemo(() => {
+    const repos = createRepositories(db);
+    const platform = getPlatformAdapters();
+    return createServices({
+      repos,
+      ...platform,
+    });
+  }, []);
+
   useEffect(() => {
     if (migrationsSuccess && __DEV__) {
       const repos = createRepositories(db);
@@ -37,6 +49,12 @@ export default function RootLayout() {
       });
     }
   }, [migrationsSuccess]);
+
+  useEffect(() => {
+    if (migrationsSuccess && seeded) {
+      void services.rolloverService.reconcile();
+    }
+  }, [migrationsSuccess, seeded, services]);
 
   useEffect(() => {
     if ((fontsLoaded || fontError) && (migrationsSuccess || migrationsError) && seeded) {
@@ -58,20 +76,22 @@ export default function RootLayout() {
   }
 
   return (
-    <Stack
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: colors.bg,
-        },
-        headerTintColor: colors.gold,
-        contentStyle: {
-          backgroundColor: colors.bg,
-        },
-      }}
-    >
-      <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="spike" options={{ title: 'Native Spike' }} />
-    </Stack>
+    <ServicesProvider services={services}>
+      <Stack
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: colors.bg,
+          },
+          headerTintColor: colors.gold,
+          contentStyle: {
+            backgroundColor: colors.bg,
+          },
+        }}
+      >
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="spike" options={{ title: 'Native Spike' }} />
+      </Stack>
+    </ServicesProvider>
   );
 }
 
