@@ -289,4 +289,29 @@ export class JourneyService {
 
     return { ok: true, value: updatedCount };
   }
+
+  async markCompletionShown(
+    id: string,
+    closingNote?: string | null,
+  ): Promise<Result<Journey, string>> {
+    const existing = await this.journeyRepo.getById(id);
+    if (!existing) {
+      return { ok: false, reason: 'Journey not found' };
+    }
+    const today = this.clockPort.today();
+    const patch: Partial<Journey> & { id: string } = {
+      id,
+      completionShownAt: existing.completionShownAt ?? today,
+    };
+    if (closingNote !== undefined) {
+      patch.closingNote = closingNote;
+    }
+    await this.journeyRepo.update(patch);
+    const updated = await this.journeyRepo.getById(id);
+    const all = await this.journeyRepo.getAll();
+    useJourneyStore.getState().setJourneys(all);
+    await this.afterWrite.execute();
+    return { ok: true, value: updated ?? existing };
+  }
 }
+

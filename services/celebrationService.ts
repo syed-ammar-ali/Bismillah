@@ -1,11 +1,14 @@
 import { isMilestone } from '../core/milestones';
-import { MilestoneRepo } from '../core/ports';
+import { ClockPort, MilestoneRepo } from '../core/ports';
 import { CelebrationItem, Journey } from '../core/types';
 import { useJourneyStore } from '../stores/useJourneyStore';
 import { useUiStore } from '../stores/useUiStore';
 
 export class CelebrationService {
-  constructor(private readonly milestoneRepo: MilestoneRepo) {}
+  constructor(
+    private readonly milestoneRepo: MilestoneRepo,
+    private readonly clockPort: ClockPort,
+  ) {}
 
   async handleSealEvent(journey: Journey, dayNumber: number): Promise<CelebrationItem[]> {
     const celebrations: CelebrationItem[] = [];
@@ -22,7 +25,7 @@ export class CelebrationService {
     if (isMilestone(dayNumber, journey.totalDays)) {
       const seen = await this.milestoneRepo.getSeen(journey.id);
       if (!seen.includes(dayNumber)) {
-        const now = new Date().toISOString();
+        const now = `${this.clockPort.today()}T00:00:00.000Z`;
         await this.milestoneRepo.markSeen(journey.id, dayNumber, now);
         useJourneyStore.getState().markMilestoneSeen(journey.id, dayNumber);
 

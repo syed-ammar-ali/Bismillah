@@ -48,7 +48,7 @@ export function createServices(deps: ServiceDeps): AppServices {
   const widgetService = new WidgetService(deps.widget);
   const afterWrite = new AfterWriteOrchestrator(widgetService, notificationService);
 
-  const celebrationService = new CelebrationService(deps.repos.milestoneRepo);
+  const celebrationService = new CelebrationService(deps.repos.milestoneRepo, deps.clock);
   const tickService = new TickService(
     deps.repos.journeyRepo,
     deps.repos.taskRepo,

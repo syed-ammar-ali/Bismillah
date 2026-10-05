@@ -387,5 +387,65 @@ describe('services', () => {
       expect(unchanged?.totalDays).toBe(sampleJourney.totalDays);
     });
   });
+
+  describe('celebrationService', () => {
+    it('enqueues seal only on regular non-milestone days', async () => {
+      useUiStore.getState().clearCelebrations();
+
+      const items = await services.celebrationService.handleSealEvent(sampleJourney, 5);
+      expect(items).toHaveLength(1);
+      expect(items[0]?.type).toBe('seal');
+      expect(useUiStore.getState().activeCelebration?.type).toBe('seal');
+    });
+
+    it('enqueues seal and milestone on milestone days (e.g. Day 10)', async () => {
+      useUiStore.getState().clearCelebrations();
+
+      const items = await services.celebrationService.handleSealEvent(sampleJourney, 10);
+      expect(items).toHaveLength(2);
+      expect(items[0]?.type).toBe('seal');
+      expect(items[1]?.type).toBe('milestone');
+
+      // Milestone is marked seen in repository
+      const seen = await repos.milestoneRepo.getSeen('j-1');
+      expect(seen).toContain(10);
+    });
+
+    it('enqueues seal, milestone, and completion on the final day in order', async () => {
+      useUiStore.getState().clearCelebrations();
+
+      const items = await services.celebrationService.handleSealEvent(sampleJourney, 40);
+      expect(items).toHaveLength(3);
+      expect(items[0]?.type).toBe('seal');
+      expect(items[1]?.type).toBe('milestone');
+      expect(items[2]?.type).toBe('completion');
+
+      expect(useUiStore.getState().activeCelebration?.type).toBe('seal');
+      useUiStore.getState().dismissActiveCelebration();
+      expect(useUiStore.getState().activeCelebration?.type).toBe('milestone');
+      useUiStore.getState().dismissActiveCelebration();
+      expect(useUiStore.getState().activeCelebration?.type).toBe('completion');
+    });
+  });
+
+  describe('journeyService.markCompletionShown', () => {
+    it('sets completionShownAt and saves closingNote', async () => {
+      await repos.journeyRepo.create(sampleJourney);
+
+      const res = await services.journeyService.markCompletionShown(
+        'j-1',
+        'Alhamdulillah for completing 40 days.',
+      );
+      expect(res.ok).toBe(true);
+      if (!res.ok) throw new Error(res.reason);
+      expect(res.value.completionShownAt).toBe('2026-10-10');
+      expect(res.value.closingNote).toBe('Alhamdulillah for completing 40 days.');
+
+      const inRepo = await repos.journeyRepo.getById('j-1');
+      expect(inRepo?.completionShownAt).toBe('2026-10-10');
+      expect(inRepo?.closingNote).toBe('Alhamdulillah for completing 40 days.');
+    });
+  });
 });
+
 

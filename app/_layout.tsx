@@ -21,6 +21,7 @@ import { seedDatabase } from '../db/seed';
 import { getPlatformAdapters } from '../platform';
 import { createServices } from '../services/createServices';
 import { ServicesProvider } from '../services/ServicesContext';
+import { CelebrationHost } from '../components/celebrations/CelebrationHost';
 import { colors } from '../theme/colors';
 
 void SplashScreen.preventAutoHideAsync();
@@ -97,10 +98,15 @@ export default function RootLayout() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="journey/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="journey/[id]/edit" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="journey/[id]/complete"
+          options={{ headerShown: false, presentation: 'fullScreenModal' }}
+        />
         <Stack.Screen name="journey/new" options={{ headerShown: false }} />
         <Stack.Screen name="gallery" options={{ headerShown: false }} />
         <Stack.Screen name="spike" options={{ title: 'Native Spike' }} />
       </Stack>
+      <CelebrationHost />
     </ServicesProvider>
   );
 }
