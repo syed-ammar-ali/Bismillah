@@ -1,18 +1,28 @@
 import { create } from 'zustand';
 import { CelebrationItem } from '../core/types';
 
+export interface ToastMessage {
+  id: string;
+  message: string;
+  type: 'info' | 'error' | 'success';
+}
+
 interface UiState {
   celebrationQueue: CelebrationItem[];
   activeCelebration: CelebrationItem | null;
+  activeToast: ToastMessage | null;
   enqueueCelebration: (item: CelebrationItem) => void;
   enqueueCelebrations: (items: CelebrationItem[]) => void;
   dismissActiveCelebration: () => void;
   clearCelebrations: () => void;
+  showToast: (message: string, type?: 'info' | 'error' | 'success') => void;
+  dismissToast: () => void;
 }
 
 export const useUiStore = create<UiState>((set) => ({
   celebrationQueue: [],
   activeCelebration: null,
+  activeToast: null,
 
   enqueueCelebration: (item) =>
     set((state) => {
@@ -53,5 +63,19 @@ export const useUiStore = create<UiState>((set) => ({
     set({
       celebrationQueue: [],
       activeCelebration: null,
+    }),
+
+  showToast: (message, type = 'info') =>
+    set({
+      activeToast: {
+        id: `${Date.now()}-${Math.random()}`,
+        message,
+        type,
+      },
+    }),
+
+  dismissToast: () =>
+    set({
+      activeToast: null,
     }),
 }));

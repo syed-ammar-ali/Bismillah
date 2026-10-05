@@ -7,9 +7,14 @@ const config: ExpoConfig = {
   version: '1.0.0',
   orientation: 'portrait',
   userInterfaceStyle: 'dark',
+  icon: './assets/icon.png',
   android: {
     package: 'com.bismillah.app',
     versionCode: Number(process.env.VERSION_CODE ?? 1),
+    adaptiveIcon: {
+      foregroundImage: './assets/adaptive-icon.png',
+      backgroundColor: '#060709',
+    },
     permissions: [
       'POST_NOTIFICATIONS',
       'SCHEDULE_EXACT_ALARM',
@@ -23,7 +28,14 @@ const config: ExpoConfig = {
     'expo-notifications',
     'expo-font',
     'expo-sharing',
-    'expo-splash-screen',
+    [
+      'expo-splash-screen',
+      {
+        image: './assets/splash.png',
+        resizeMode: 'contain',
+        backgroundColor: '#060709',
+      },
+    ],
     [
       'expo-build-properties',
       {

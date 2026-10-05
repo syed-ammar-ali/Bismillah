@@ -540,15 +540,17 @@ export default function SettingsTab() {
               <ExternalLink size={16} color={colors.gold} />
             </Pressable>
 
-            <Pressable
-              onPress={() => router.push('/gallery')}
-              accessibilityRole="button"
-              accessibilityLabel="Open Design Gallery"
-              style={styles.navLinkRow}
-            >
-              <Text style={styles.navLinkText}>Design System Gallery</Text>
-              <ExternalLink size={16} color={colors.gold} />
-            </Pressable>
+            {__DEV__ ? (
+              <Pressable
+                onPress={() => router.push('/gallery')}
+                accessibilityRole="button"
+                accessibilityLabel="Open Design Gallery"
+                style={styles.navLinkRow}
+              >
+                <Text style={styles.navLinkText}>Design System Gallery (DEV)</Text>
+                <ExternalLink size={16} color={colors.gold} />
+              </Pressable>
+            ) : null}
           </GlassCard>
         </View>
       </ScrollView>

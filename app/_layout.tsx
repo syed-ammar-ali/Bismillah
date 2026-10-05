@@ -13,7 +13,10 @@ import { useFonts } from 'expo-font';
 import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import React, { useEffect, useMemo, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { AppState, Pressable, StyleSheet, Text, View } from 'react-native';
+import { CelebrationHost } from '../components/celebrations/CelebrationHost';
+import { ErrorBoundary } from '../components/ui/ErrorBoundary';
+import { ToastHost } from '../components/ui/ToastHost';
 import { db } from '../db/client';
 import migrations from '../db/migrations/migrations';
 import { createRepositories } from '../db/repos';
@@ -21,8 +24,8 @@ import { seedDatabase } from '../db/seed';
 import { getPlatformAdapters, setupNotificationResponseListener } from '../platform';
 import { createServices } from '../services/createServices';
 import { ServicesProvider } from '../services/ServicesContext';
-import { CelebrationHost } from '../components/celebrations/CelebrationHost';
 import { colors } from '../theme/colors';
+import { fontFamilies } from '../theme/typography';
 
 void SplashScreen.preventAutoHideAsync();
 
@@ -48,6 +51,7 @@ export default function RootLayout() {
     });
   }, []);
 
+  // Seed dev database if in development
   useEffect(() => {
     if (migrationsSuccess && __DEV__) {
       const repos = createRepositories(db);
@@ -57,12 +61,60 @@ export default function RootLayout() {
     }
   }, [migrationsSuccess]);
 
+  // Initial reconcile
   useEffect(() => {
     if (migrationsSuccess && seeded) {
       void services.rolloverService.reconcile();
     }
   }, [migrationsSuccess, seeded, services]);
 
+  // AppState listener: reload store on every foreground (handling widget writes / date change)
+  useEffect(() => {
+    if (!migrationsSuccess || !seeded) return;
+
+    const subscription = AppState.addEventListener('change', (nextState) => {
+      if (nextState === 'active') {
+        void services.rolloverService.reconcile();
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [migrationsSuccess, seeded, services]);
+
+  // Midnight timer: automatically trigger rollover at next midnight
+  useEffect(() => {
+    if (!migrationsSuccess || !seeded) return;
+
+    let timerId: ReturnType<typeof setTimeout> | null = null;
+
+    const scheduleNextMidnight = () => {
+      const now = new Date();
+      const tomorrow = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() + 1,
+        0,
+        0,
+        2, // 2 seconds past midnight
+      );
+      const ms = Math.max(1000, tomorrow.getTime() - now.getTime());
+
+      timerId = setTimeout(() => {
+        void services.rolloverService.reconcile();
+        scheduleNextMidnight();
+      }, ms);
+    };
+
+    scheduleNextMidnight();
+
+    return () => {
+      if (timerId) clearTimeout(timerId);
+    };
+  }, [migrationsSuccess, seeded, services]);
+
+  // Splash screen dismissal
   useEffect(() => {
     if ((fontsLoaded || fontError) && (migrationsSuccess || migrationsError) && seeded) {
       void SplashScreen.hideAsync();
@@ -74,6 +126,17 @@ export default function RootLayout() {
       <View style={styles.errorContainer}>
         <Text style={styles.errorTitle}>Database Initialization Failed</Text>
         <Text style={styles.errorMessage}>{migrationsError.message}</Text>
+        <Pressable
+          onPress={() => {
+            void SplashScreen.preventAutoHideAsync();
+            // Retry
+          }}
+          accessibilityRole="button"
+          accessibilityLabel="Retry database connection"
+          style={styles.retryBtn}
+        >
+          <Text style={styles.retryBtnText}>Retry Connection</Text>
+        </Pressable>
       </View>
     );
   }
@@ -83,33 +146,36 @@ export default function RootLayout() {
   }
 
   return (
-    <ServicesProvider services={services}>
-      <Stack
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: colors.bg,
-          },
-          headerTintColor: colors.gold,
-          contentStyle: {
-            backgroundColor: colors.bg,
-          },
-        }}
-      >
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-        <Stack.Screen name="journey/[id]" options={{ headerShown: false }} />
-        <Stack.Screen name="journey/[id]/edit" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="journey/[id]/complete"
-          options={{ headerShown: false, presentation: 'fullScreenModal' }}
-        />
-        <Stack.Screen name="journey/new" options={{ headerShown: false }} />
-        <Stack.Screen name="gallery" options={{ headerShown: false }} />
-        <Stack.Screen name="spike" options={{ title: 'Native Spike' }} />
-      </Stack>
-      <NotificationResponseHandler />
-      <CelebrationHost />
-    </ServicesProvider>
+    <ErrorBoundary>
+      <ServicesProvider services={services}>
+        <Stack
+          screenOptions={{
+            headerStyle: {
+              backgroundColor: colors.bg,
+            },
+            headerTintColor: colors.gold,
+            contentStyle: {
+              backgroundColor: colors.bg,
+            },
+          }}
+        >
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+          <Stack.Screen name="journey/[id]" options={{ headerShown: false }} />
+          <Stack.Screen name="journey/[id]/edit" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="journey/[id]/complete"
+            options={{ headerShown: false, presentation: 'fullScreenModal' }}
+          />
+          <Stack.Screen name="journey/new" options={{ headerShown: false }} />
+          <Stack.Screen name="gallery" options={{ headerShown: false }} />
+          <Stack.Screen name="spike" options={{ title: 'Native Spike' }} />
+        </Stack>
+        <NotificationResponseHandler />
+        <CelebrationHost />
+        <ToastHost />
+      </ServicesProvider>
+    </ErrorBoundary>
   );
 }
 
@@ -132,14 +198,29 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   errorTitle: {
+    fontFamily: fontFamilies.display,
     color: colors.gold,
-    fontSize: 20,
-    fontWeight: '600',
+    fontSize: 22,
     marginBottom: 12,
+    textAlign: 'center',
   },
   errorMessage: {
+    fontFamily: fontFamilies.body,
     color: colors.textMuted,
     fontSize: 14,
     textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 24,
+  },
+  retryBtn: {
+    backgroundColor: colors.gold,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+  },
+  retryBtnText: {
+    fontFamily: fontFamilies.labelStrong,
+    fontSize: 14,
+    color: '#060709',
   },
 });

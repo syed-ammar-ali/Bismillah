@@ -1,3 +1,4 @@
+import { Redirect } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   ScrollView,
@@ -99,6 +100,10 @@ export default function SpikeScreen() {
     await adapters.notifications.cancelAll();
     addLog('Cancelled all scheduled notifications');
   };
+
+  if (!__DEV__) {
+    return <Redirect href="/(tabs)/today" />;
+  }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>

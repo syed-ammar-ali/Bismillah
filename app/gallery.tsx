@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
   Pressable,
@@ -28,6 +28,10 @@ export default function GalleryScreen() {
   const [selectedChip, setSelectedChip] = useState('All');
   const [taskDone1, setTaskDone1] = useState(false);
   const [taskDone2, setTaskDone2] = useState(true);
+
+  if (!__DEV__) {
+    return <Redirect href="/(tabs)/today" />;
+  }
 
   // 120 days sample status data for performance check
   const sample120Statuses: Record<number, DayStatus> = {};
