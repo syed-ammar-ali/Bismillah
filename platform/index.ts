@@ -19,7 +19,9 @@ import { RealStoragePort } from './storage';
 import { RealSystemSettingsPort } from './systemSettings';
 import { RealWidgetPort } from './widget';
 
-const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+const isExpoGo =
+  Constants.executionEnvironment === ExecutionEnvironment.StoreClient ||
+  Constants.appOwnership === 'expo';
 
 export interface PlatformAdapters {
   clock: ClockPort;
