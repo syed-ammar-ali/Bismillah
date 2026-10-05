@@ -13,6 +13,7 @@ import { GapService } from './gapService';
 import { JourneyService } from './journeyService';
 import { NotificationService } from './notificationService';
 import { RolloverService } from './rolloverService';
+import { SettingsService } from './settingsService';
 import { TickService } from './tickService';
 import { WidgetService } from './widgetService';
 
@@ -34,6 +35,7 @@ export interface AppServices {
   notificationService: NotificationService;
   widgetService: WidgetService;
   backupService: BackupService;
+  settingsService: SettingsService;
   afterWrite: AfterWriteOrchestrator;
 }
 
@@ -82,6 +84,14 @@ export function createServices(deps: ServiceDeps): AppServices {
     afterWrite,
   );
   const backupService = new BackupService();
+  const settingsService = new SettingsService(
+    deps.repos.settingsRepo,
+    journeyService,
+    deps.notifications,
+    deps.systemSettings,
+    deps.capabilities,
+    afterWrite,
+  );
 
   return {
     tickService,
@@ -92,6 +102,7 @@ export function createServices(deps: ServiceDeps): AppServices {
     notificationService,
     widgetService,
     backupService,
+    settingsService,
     afterWrite,
   };
 }

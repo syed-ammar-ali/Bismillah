@@ -321,4 +321,71 @@ describe('services', () => {
       expect(useJourneyStore.getState().journeys).toHaveLength(1);
     });
   });
+
+  describe('settingsService', () => {
+    it('updates settings and refreshes notifications and widget', async () => {
+      const res = await services.settingsService.updateSettings({
+        reminderEnabled: true,
+        reminderTime: '07:30',
+      });
+
+      expect(res.ok).toBe(true);
+      const updated = await repos.settingsRepo.getAll();
+      expect(updated.reminderEnabled).toBe(true);
+      expect(updated.reminderTime).toBe('07:30');
+      expect(fakeNotifications.scheduleDaily).toHaveBeenCalled();
+      expect(fakeWidget.refresh).toHaveBeenCalled();
+    });
+
+    it('toggles battery checklist acknowledgement', async () => {
+      expect((await repos.settingsRepo.getAll()).batteryChecklistDone).toBe(false);
+
+      const res = await services.settingsService.toggleBatteryChecklist(true);
+      expect(res.ok).toBe(true);
+      expect((await repos.settingsRepo.getAll()).batteryChecklistDone).toBe(true);
+    });
+
+    it('re-resolves active Hijri journeys when hijriAdjustment changes', async () => {
+      const hijriJourney: Journey = {
+        id: 'j-hijri',
+        name: 'Ramadan Journey',
+        calendarType: 'hijri',
+        startInput: '1448-09-01',
+        endInput: '1448-09-30',
+        startDate: '2027-02-08',
+        endDate: '2027-03-09',
+        totalDays: 30,
+        sortOrder: 1,
+        createdAt: '2026-10-01T00:00:00.000Z',
+        completionShownAt: null,
+      };
+
+      await repos.journeyRepo.create(hijriJourney);
+
+      // Re-resolve with adjustment = 1
+      const res = await services.settingsService.reResolveHijriJourneys(1);
+      expect(res.ok).toBe(true);
+
+      const settings = await repos.settingsRepo.getAll();
+      expect(settings.hijriAdjustment).toBe(1);
+
+      const updatedJourney = await repos.journeyRepo.getById('j-hijri');
+      expect(updatedJourney).toBeDefined();
+      // Notice fromHijri with adjustment > 0 shifts gregorianDate earlier by 1 day
+      expect(updatedJourney?.startDate).not.toBe('2027-02-08');
+    });
+
+    it('leaves gregorian journeys unaffected during Hijri re-resolution', async () => {
+      await repos.journeyRepo.create(sampleJourney);
+
+      const res = await services.settingsService.reResolveHijriJourneys(-1);
+      expect(res.ok).toBe(true);
+
+      const unchanged = await repos.journeyRepo.getById('j-1');
+      expect(unchanged?.startDate).toBe(sampleJourney.startDate);
+      expect(unchanged?.endDate).toBe(sampleJourney.endDate);
+      expect(unchanged?.totalDays).toBe(sampleJourney.totalDays);
+    });
+  });
 });
+

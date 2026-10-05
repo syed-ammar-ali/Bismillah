@@ -247,4 +247,46 @@ export class JourneyService {
     await this.afterWrite.execute();
     return { ok: true, value: undefined };
   }
+
+  async reResolveHijriJourneys(newAdjustment: -1 | 0 | 1): Promise<Result<number, string>> {
+    const allJourneys = await this.journeyRepo.getAll();
+    const hijriJourneys = allJourneys.filter(
+      (j) => j.calendarType === 'hijri' && !j.archivedAt && !j.completionShownAt,
+    );
+
+    let updatedCount = 0;
+    const updatedJourneys = [...allJourneys];
+
+    for (const journey of hijriJourneys) {
+      const [sy, sm, sd] = journey.startInput.split('-').map((v) => parseInt(v, 10));
+      const [ey, em, ed] = journey.endInput.split('-').map((v) => parseInt(v, 10));
+
+      if (sy && sm && sd && ey && em && ed) {
+        const startDate = fromHijri(sy, sm, sd, newAdjustment).gregorianDate;
+        const endDate = fromHijri(ey, em, ed, newAdjustment).gregorianDate;
+        const count = totalDays(startDate, endDate);
+
+        const updated: Journey = {
+          ...journey,
+          startDate,
+          endDate,
+          totalDays: count,
+        };
+
+        await this.journeyRepo.update(updated);
+        const idx = updatedJourneys.findIndex((j) => j.id === journey.id);
+        if (idx !== -1) {
+          updatedJourneys[idx] = updated;
+        }
+        updatedCount++;
+      }
+    }
+
+    if (updatedCount > 0) {
+      useJourneyStore.getState().setJourneys(updatedJourneys);
+      await this.afterWrite.execute();
+    }
+
+    return { ok: true, value: updatedCount };
+  }
 }
