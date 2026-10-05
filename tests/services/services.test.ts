@@ -733,6 +733,14 @@ describe('services', () => {
       expect(useJourneyStore.getState().journeys[0]?.id).toBe('j-restored');
     });
   });
+
+  describe('widgetService', () => {
+    it('calls widgetPort refresh successfully', async () => {
+      (fakeWidget.refresh as jest.Mock).mockClear();
+      await services.widgetService.refresh();
+      expect(fakeWidget.refresh).toHaveBeenCalled();
+    });
+  });
 });
 
 
