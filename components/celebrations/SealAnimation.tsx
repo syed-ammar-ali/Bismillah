@@ -185,11 +185,6 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(212, 168, 83, 0.3)',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: colors.gold,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.5,
-    shadowRadius: 16,
-    elevation: 8,
   },
   textContainer: {
     marginTop: spacing.md,

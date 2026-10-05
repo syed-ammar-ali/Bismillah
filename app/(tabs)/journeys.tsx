@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { Plus } from 'lucide-react-native';
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   FlatList,
   Pressable,
@@ -16,12 +16,55 @@ import { journeyProgress, todayTasks } from '../../core/progress';
 import { dayStatus } from '../../core/status';
 import { computeStreakInfo } from '../../core/streak';
 import { dayNumberFor } from '../../core/timeline';
-import { DayStatus } from '../../core/types';
+import { DayStatus, GlowLevel, Journey } from '../../core/types';
 import { useAppStore } from '../../stores/useAppStore';
 import { useJourneyStore } from '../../stores/useJourneyStore';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 import { fontFamilies } from '../../theme/typography';
+
+interface JourneyItemData {
+  journey: Journey;
+  dayNumber: number | null;
+  progressFraction: number;
+  currentStreak: number;
+  bestStreak: number;
+  glowLevel: GlowLevel;
+  todayDoneCount?: number;
+  todayTotalCount?: number;
+  isSealedToday: boolean;
+  deadlineText: string | null;
+  state: 'upcoming' | 'active' | 'completed';
+}
+
+const JourneyRow = React.memo(function JourneyRow({
+  item,
+  onPress,
+}: {
+  item: JourneyItemData;
+  onPress: (id: string) => void;
+}) {
+  const handlePress = useCallback(() => {
+    onPress(item.journey.id);
+  }, [item.journey.id, onPress]);
+
+  return (
+    <JourneyCard
+      journey={item.journey}
+      dayNumber={item.dayNumber}
+      progressFraction={item.progressFraction}
+      currentStreak={item.currentStreak}
+      bestStreak={item.bestStreak}
+      glowLevel={item.glowLevel}
+      todayDoneCount={item.todayDoneCount}
+      todayTotalCount={item.todayTotalCount}
+      isSealedToday={item.isSealedToday}
+      deadlineCountdownText={item.deadlineText}
+      state={item.state}
+      onPress={handlePress}
+    />
+  );
+});
 
 export default function JourneysScreen() {
   const router = useRouter();
@@ -92,6 +135,22 @@ export default function JourneysScreen() {
       });
   }, [journeys, tasksRecord, completionsRecord, today]);
 
+  const handlePressJourney = useCallback(
+    (id: string) => {
+      router.push(`/journey/${id}`);
+    },
+    [router],
+  );
+
+  const renderItem = useCallback(
+    ({ item }: { item: JourneyItemData }) => (
+      <JourneyRow item={item} onPress={handlePressJourney} />
+    ),
+    [handlePressJourney],
+  );
+
+  const keyExtractor = useCallback((item: JourneyItemData) => item.journey.id, []);
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -104,25 +163,10 @@ export default function JourneysScreen() {
 
       <FlatList
         data={journeyItems}
-        keyExtractor={(item) => item.journey.id}
+        keyExtractor={keyExtractor}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
-        renderItem={({ item }) => (
-          <JourneyCard
-            journey={item.journey}
-            dayNumber={item.dayNumber}
-            progressFraction={item.progressFraction}
-            currentStreak={item.currentStreak}
-            bestStreak={item.bestStreak}
-            glowLevel={item.glowLevel}
-            todayDoneCount={item.todayDoneCount}
-            todayTotalCount={item.todayTotalCount}
-            isSealedToday={item.isSealedToday}
-            deadlineCountdownText={item.deadlineText}
-            state={item.state}
-            onPress={() => router.push(`/journey/${item.journey.id}`)}
-          />
-        )}
+        renderItem={renderItem}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Crescent size={64} opacity={0.25} />

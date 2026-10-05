@@ -12,6 +12,7 @@ export const fontFamilies = {
   body: 'Inter_400Regular',        // All body copy
   label: 'Inter_500Medium',        // Labels, chips, captions
   labelStrong: 'Inter_600SemiBold',// Button labels, active labels
+  cormorant: 'CormorantGaramond_600SemiBold',
 } as const;
 
 export const typography = {

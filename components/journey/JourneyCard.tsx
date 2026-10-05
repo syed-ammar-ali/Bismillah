@@ -5,7 +5,9 @@ import { GlowLevel, Journey } from '../../core/types';
 import { colors } from '../../theme/colors';
 import { glowLevels } from '../../theme/glow';
 import { radius, spacing } from '../../theme/spacing';
+import { fontFamilies } from '../../theme/typography';
 import { ProgressRing } from '../ring/ProgressRing';
+import { Crescent } from '../ui/Crescent';
 import { StreakBadge } from './StreakBadge';
 
 export interface JourneyCardProps {
@@ -23,7 +25,7 @@ export interface JourneyCardProps {
   onPress?: () => void;
 }
 
-export function JourneyCard({
+export const JourneyCard = React.memo(function JourneyCard({
   journey,
   dayNumber,
   progressFraction,
@@ -88,7 +90,7 @@ export function JourneyCard({
           </View>
           {isCompleted ? (
             <View style={styles.completedBadge}>
-              <Text style={styles.completedText}>✦</Text>
+              <Crescent size={10} color={colors.gold} />
             </View>
           ) : null}
         </View>
@@ -130,7 +132,7 @@ export function JourneyCard({
       </View>
     </Pressable>
   );
-}
+});
 
 const styles = StyleSheet.create({
   card: {
@@ -168,13 +170,13 @@ const styles = StyleSheet.create({
     marginRight: spacing.sm,
   },
   name: {
-    fontFamily: 'Outfit_700Bold',
+    fontFamily: fontFamilies.display,
     fontSize: 20,
     letterSpacing: -0.4,
     color: colors.text,
   },
   deadline: {
-    fontFamily: 'Inter_400Regular',
+    fontFamily: fontFamilies.body,
     fontSize: 12,
     color: colors.goldSoft,
     marginTop: 2,
@@ -194,7 +196,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.08)',
   },
   calendarText: {
-    fontFamily: 'Inter_600SemiBold',
+    fontFamily: fontFamilies.labelStrong,
     fontSize: 9,
     fontWeight: '700',
     color: 'rgba(255, 255, 255, 0.35)',
@@ -217,7 +219,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   ringPercent: {
-    fontFamily: 'Outfit_600SemiBold',
+    fontFamily: fontFamilies.heading,
     fontSize: 11,
     color: colors.goldSoft,
     letterSpacing: -0.3,
@@ -229,7 +231,7 @@ const styles = StyleSheet.create({
     gap: 5,
   },
   dayProgress: {
-    fontFamily: 'Inter_600SemiBold',
+    fontFamily: fontFamilies.labelStrong,
     fontSize: 13,
     color: colors.text,
     letterSpacing: -0.1,
@@ -254,7 +256,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.04)',
   },
   statusChipText: {
-    fontFamily: 'Inter_500Medium',
+    fontFamily: fontFamilies.label,
     fontSize: 11,
     color: 'rgba(255, 255, 255, 0.45)',
   },

@@ -9,6 +9,7 @@ import {
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 import { colors } from '../../theme/colors';
 import { radius, spacing } from '../../theme/spacing';
+import { fontFamilies } from '../../theme/typography';
 
 export interface SheetProps {
   visible: boolean;
@@ -108,7 +109,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.18)',
   },
   title: {
-    fontFamily: 'Outfit_700Bold',
+    fontFamily: fontFamilies.display,
     fontSize: 20,
     letterSpacing: -0.3,
     color: colors.gold,

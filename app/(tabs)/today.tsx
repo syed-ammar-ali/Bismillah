@@ -20,6 +20,106 @@ import { colors } from '../../theme/colors';
 import { radius, spacing } from '../../theme/spacing';
 import { fontFamilies } from '../../theme/typography';
 
+const TodayTaskItem = React.memo(function TodayTaskItem({
+  task,
+  journeyId,
+  dayNumber,
+  onToggleTask,
+}: {
+  task: ActiveJourneyToday['tasks'][number];
+  journeyId: string;
+  dayNumber: number;
+  onToggleTask: (journeyId: string, taskId: string, dayNumber: number) => void;
+}) {
+  const handleToggle = useCallback(() => {
+    onToggleTask(journeyId, task.id, dayNumber);
+  }, [journeyId, task.id, dayNumber, onToggleTask]);
+
+  return (
+    <TaskCard
+      title={task.title}
+      note={task.note}
+      isCompleted={task.isCompleted}
+      onToggle={handleToggle}
+    />
+  );
+});
+
+interface TodayJourneySectionProps {
+  item: ActiveJourneyToday;
+  isExpanded: boolean;
+  onToggleExpand: (journeyId: string) => void;
+  onToggleTask: (journeyId: string, taskId: string, dayNumber: number) => void;
+}
+
+const TodayJourneySection = React.memo(function TodayJourneySection({
+  item: aj,
+  isExpanded,
+  onToggleExpand,
+  onToggleTask,
+}: TodayJourneySectionProps) {
+  const isCollapsed = aj.isSealed && !isExpanded;
+  const handleToggleExpand = useCallback(() => {
+    onToggleExpand(aj.journey.id);
+  }, [onToggleExpand, aj.journey.id]);
+
+  return (
+    <View style={styles.journeySection}>
+      {/* Journey Header */}
+      <View style={styles.journeyHeader}>
+        <View style={styles.journeyTitleCol}>
+          <Text style={styles.journeyName}>{aj.journey.name}</Text>
+          <Text style={styles.dayNumberText}>
+            Day {aj.dayNumber} of {aj.journey.totalDays}
+          </Text>
+        </View>
+
+        <View style={styles.journeyHeaderRight}>
+          <StreakBadge streak={aj.streak} glowLevel={aj.glowLevel} size="small" />
+        </View>
+      </View>
+
+      {/* Collapsed state when sealed */}
+      {isCollapsed ? (
+        <Pressable
+          onPress={handleToggleExpand}
+          style={styles.sealedCollapseBanner}
+          accessibilityRole="button"
+          accessibilityLabel={`${aj.journey.name} is sealed. Tap to show tasks.`}
+        >
+          <View style={styles.sealedIndicator}>
+            <Text style={styles.sealedCheck}>✓</Text>
+            <Text style={styles.sealedCollapseText}>Sealed for today</Text>
+          </View>
+          <Text style={styles.expandHint}>View tasks</Text>
+        </Pressable>
+      ) : (
+        <View style={styles.taskList}>
+          {aj.tasks.map((task) => (
+            <TodayTaskItem
+              key={task.id}
+              task={task}
+              journeyId={aj.journey.id}
+              dayNumber={aj.dayNumber}
+              onToggleTask={onToggleTask}
+            />
+          ))}
+          {aj.isSealed ? (
+            <Pressable
+              onPress={handleToggleExpand}
+              style={styles.collapseHintButton}
+              accessibilityRole="button"
+              accessibilityLabel="Collapse completed journey"
+            >
+              <Text style={styles.collapseHintText}>Collapse section</Text>
+            </Pressable>
+          ) : null}
+        </View>
+      )}
+    </View>
+  );
+});
+
 export default function TodayScreen() {
   const router = useRouter();
   const { today, hijri } = useToday();
@@ -29,12 +129,12 @@ export default function TodayScreen() {
   // Track manual expansion of sealed journeys (default is collapsed)
   const [expandedSealed, setExpandedSealed] = useState<Record<string, boolean>>({});
 
-  const handleToggleSealedExpanded = (journeyId: string) => {
+  const handleToggleSealedExpanded = useCallback((journeyId: string) => {
     setExpandedSealed((prev) => ({
       ...prev,
       [journeyId]: !prev[journeyId],
     }));
-  };
+  }, []);
 
   const handleToggleTask = useCallback(
     async (journeyId: string, taskId: string, dayNumber: number) => {
@@ -43,13 +143,27 @@ export default function TodayScreen() {
     [tickService],
   );
 
+  const renderItem = useCallback(
+    ({ item }: { item: ActiveJourneyToday }) => (
+      <TodayJourneySection
+        item={item}
+        isExpanded={Boolean(expandedSealed[item.journey.id])}
+        onToggleExpand={handleToggleSealedExpanded}
+        onToggleTask={handleToggleTask}
+      />
+    ),
+    [expandedSealed, handleToggleSealedExpanded, handleToggleTask],
+  );
+
+  const keyExtractor = useCallback((item: ActiveJourneyToday) => item.journey.id, []);
+
   const progressFraction = totalTasks > 0 ? totalDone / totalTasks : 0;
 
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
         data={activeJourneys}
-        keyExtractor={(item) => item.journey.id}
+        keyExtractor={keyExtractor}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={
@@ -94,65 +208,7 @@ export default function TodayScreen() {
             ) : null}
           </View>
         }
-        renderItem={({ item: aj }: { item: ActiveJourneyToday }) => {
-          const isCollapsed = aj.isSealed && !expandedSealed[aj.journey.id];
-
-          return (
-            <View style={styles.journeySection}>
-              {/* Journey Header */}
-              <View style={styles.journeyHeader}>
-                <View style={styles.journeyTitleCol}>
-                  <Text style={styles.journeyName}>{aj.journey.name}</Text>
-                  <Text style={styles.dayNumberText}>
-                    Day {aj.dayNumber} of {aj.journey.totalDays}
-                  </Text>
-                </View>
-
-                <View style={styles.journeyHeaderRight}>
-                  <StreakBadge streak={aj.streak} glowLevel={aj.glowLevel} size="small" />
-                </View>
-              </View>
-
-              {/* Collapsed state when sealed */}
-              {isCollapsed ? (
-                <Pressable
-                  onPress={() => handleToggleSealedExpanded(aj.journey.id)}
-                  style={styles.sealedCollapseBanner}
-                  accessibilityRole="button"
-                  accessibilityLabel={`${aj.journey.name} is sealed. Tap to show tasks.`}
-                >
-                  <View style={styles.sealedIndicator}>
-                    <Text style={styles.sealedCheck}>✓</Text>
-                    <Text style={styles.sealedCollapseText}>Sealed for today</Text>
-                  </View>
-                  <Text style={styles.expandHint}>View tasks</Text>
-                </Pressable>
-              ) : (
-                <View style={styles.taskList}>
-                  {aj.tasks.map((task) => (
-                    <TaskCard
-                      key={task.id}
-                      title={task.title}
-                      note={task.note}
-                      isCompleted={task.isCompleted}
-                      onToggle={() => handleToggleTask(aj.journey.id, task.id, aj.dayNumber)}
-                    />
-                  ))}
-                  {aj.isSealed ? (
-                    <Pressable
-                      onPress={() => handleToggleSealedExpanded(aj.journey.id)}
-                      style={styles.collapseHintButton}
-                      accessibilityRole="button"
-                      accessibilityLabel="Collapse completed journey"
-                    >
-                      <Text style={styles.collapseHintText}>Collapse section</Text>
-                    </Pressable>
-                  ) : null}
-                </View>
-              )}
-            </View>
-          );
-        }}
+        renderItem={renderItem}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Crescent size={64} opacity={0.25} />

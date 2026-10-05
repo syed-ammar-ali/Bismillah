@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { ArrowLeft, RefreshCw, Trash2 } from 'lucide-react-native';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   FlatList,
   Pressable,
@@ -18,6 +18,41 @@ import { fontFamilies } from '../theme/typography';
 type LevelFilter = 'all' | 'info' | 'warn' | 'error';
 type CategoryFilter = 'all' | 'widget' | 'notification' | 'system' | 'general';
 
+const LogCard = React.memo(function LogCard({ item }: { item: LogEntry }) {
+  const levelStyle =
+    item.level === 'error'
+      ? styles.badgeError
+      : item.level === 'warn'
+        ? styles.badgeWarn
+        : styles.badgeInfo;
+
+  const levelTextColor =
+    item.level === 'error'
+      ? colors.danger
+      : item.level === 'warn'
+        ? colors.gold
+        : colors.textMuted;
+
+  const timeOnly = item.timestamp.split('T')[1]?.replace('Z', '') ?? item.timestamp;
+
+  return (
+    <View style={styles.logCard}>
+      <View style={styles.logHeader}>
+        <View style={[styles.badge, levelStyle]}>
+          <Text style={[styles.badgeText, { color: levelTextColor }]}>
+            {item.level.toUpperCase()}
+          </Text>
+        </View>
+        <View style={styles.categoryBadge}>
+          <Text style={styles.categoryText}>{item.category.toUpperCase()}</Text>
+        </View>
+        <Text style={styles.timestampText}>{timeOnly}</Text>
+      </View>
+      <Text style={styles.logMessage}>{item.message}</Text>
+    </View>
+  );
+});
+
 export default function DiagnosticsScreen() {
   const router = useRouter();
   const [logs, setLogs] = useState<LogEntry[]>(() => getLogs().reverse());
@@ -33,11 +68,23 @@ export default function DiagnosticsScreen() {
     setLogs([]);
   }, []);
 
-  const filteredLogs = logs.filter((entry) => {
-    if (selectedLevel !== 'all' && entry.level !== selectedLevel) return false;
-    if (selectedCategory !== 'all' && entry.category !== selectedCategory) return false;
-    return true;
-  });
+  const filteredLogs = useMemo(() => {
+    return logs.filter((entry) => {
+      if (selectedLevel !== 'all' && entry.level !== selectedLevel) return false;
+      if (selectedCategory !== 'all' && entry.category !== selectedCategory) return false;
+      return true;
+    });
+  }, [logs, selectedLevel, selectedCategory]);
+
+  const renderItem = useCallback(
+    ({ item }: { item: LogEntry }) => <LogCard item={item} />,
+    [],
+  );
+
+  const keyExtractor = useCallback(
+    (item: LogEntry, idx: number) => `${item.timestamp}-${idx}`,
+    [],
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -136,43 +183,10 @@ export default function DiagnosticsScreen() {
       {/* Log list */}
       <FlatList
         data={filteredLogs}
-        keyExtractor={(_item, idx) => String(idx)}
+        keyExtractor={keyExtractor}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
-        renderItem={({ item }) => {
-          const levelStyle =
-            item.level === 'error'
-              ? styles.badgeError
-              : item.level === 'warn'
-                ? styles.badgeWarn
-                : styles.badgeInfo;
-
-          const levelTextColor =
-            item.level === 'error'
-              ? colors.danger
-              : item.level === 'warn'
-                ? colors.gold
-                : colors.textMuted;
-
-          const timeOnly = item.timestamp.split('T')[1]?.replace('Z', '') ?? item.timestamp;
-
-          return (
-            <View style={styles.logCard}>
-              <View style={styles.logHeader}>
-                <View style={[styles.badge, levelStyle]}>
-                  <Text style={[styles.badgeText, { color: levelTextColor }]}>
-                    {item.level.toUpperCase()}
-                  </Text>
-                </View>
-                <View style={styles.categoryBadge}>
-                  <Text style={styles.categoryText}>{item.category.toUpperCase()}</Text>
-                </View>
-                <Text style={styles.timestampText}>{timeOnly}</Text>
-              </View>
-              <Text style={styles.logMessage}>{item.message}</Text>
-            </View>
-          );
-        }}
+        renderItem={renderItem}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>No matching log entries found.</Text>

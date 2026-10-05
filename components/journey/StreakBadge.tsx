@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
+  useReducedMotion,
   useSharedValue,
   withRepeat,
   withTiming,
@@ -27,9 +28,10 @@ export function StreakBadge({
 }: StreakBadgeProps) {
   const spec = glowLevels[glowLevel];
   const pulseOpacity = useSharedValue(spec.opacity);
+  const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
-    if (spec.hasPulse) {
+    if (spec.hasPulse && !shouldReduceMotion) {
       pulseOpacity.value = withRepeat(
         withTiming(spec.opacity * 0.4, {
           duration: 1500,
@@ -41,7 +43,7 @@ export function StreakBadge({
     } else {
       pulseOpacity.value = spec.opacity;
     }
-  }, [spec, pulseOpacity]);
+  }, [spec, pulseOpacity, shouldReduceMotion]);
 
   const animatedGlowStyle = useAnimatedStyle(() => ({
     opacity: pulseOpacity.value,

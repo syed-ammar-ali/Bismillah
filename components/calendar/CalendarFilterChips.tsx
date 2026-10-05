@@ -33,6 +33,7 @@ export function CalendarFilterChips({
           accessibilityRole="button"
           accessibilityState={{ selected: isAllSelected }}
           accessibilityLabel="Filter all journeys"
+          hitSlop={10}
           style={({ pressed }) => [
             styles.chip,
             isAllSelected && styles.chipActive,
@@ -61,6 +62,7 @@ export function CalendarFilterChips({
               accessibilityRole="button"
               accessibilityState={{ selected: isSelected }}
               accessibilityLabel={`Filter journey ${journey.name}`}
+              hitSlop={10}
               style={({ pressed }) => [
                 styles.chip,
                 isSelected && styles.chipActive,

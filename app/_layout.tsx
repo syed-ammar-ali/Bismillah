@@ -1,3 +1,4 @@
+import { CormorantGaramond_600SemiBold } from '@expo-google-fonts/cormorant-garamond';
 import {
   Outfit_600SemiBold,
   Outfit_700Bold,
@@ -34,6 +35,7 @@ export default function RootLayout() {
     Outfit_600SemiBold,
     Outfit_700Bold,
     Outfit_800ExtraBold,
+    CormorantGaramond_600SemiBold,
     Inter_400Regular,
     Inter_500Medium,
     Inter_600SemiBold,

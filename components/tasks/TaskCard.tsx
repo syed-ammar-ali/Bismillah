@@ -18,7 +18,7 @@ export interface TaskCardProps {
   disabled?: boolean;
 }
 
-export function TaskCard({
+export const TaskCard = React.memo(function TaskCard({
   title,
   note,
   isCompleted,
@@ -108,7 +108,7 @@ export function TaskCard({
       {isCompleted ? <View style={styles.completedStrip} /> : null}
     </Pressable>
   );
-}
+});
 
 const styles = StyleSheet.create({
   card: {

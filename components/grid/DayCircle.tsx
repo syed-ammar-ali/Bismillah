@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
+  useReducedMotion,
   useSharedValue,
   withRepeat,
   withTiming,
@@ -24,9 +25,10 @@ export const DayCircle = React.memo(function DayCircle({
   onPress,
 }: DayCircleProps) {
   const pulseScale = useSharedValue(1);
+  const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
-    if (status === 'today') {
+    if (status === 'today' && !shouldReduceMotion) {
       pulseScale.value = withRepeat(
         withTiming(1.08, { duration: 800, easing: Easing.inOut(Easing.ease) }),
         -1,
@@ -35,7 +37,7 @@ export const DayCircle = React.memo(function DayCircle({
     } else {
       pulseScale.value = 1;
     }
-  }, [status, pulseScale]);
+  }, [status, pulseScale, shouldReduceMotion]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: pulseScale.value }],
@@ -94,11 +96,6 @@ const styles = StyleSheet.create({
 const circleStyles = StyleSheet.create({
   sealed: {
     backgroundColor: colors.gold,
-    shadowColor: colors.gold,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.35,
-    shadowRadius: 4,
-    elevation: 2,
   },
   gap: {
     backgroundColor: 'transparent',
