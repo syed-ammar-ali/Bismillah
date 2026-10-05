@@ -51,3 +51,12 @@ export function getPlatformAdapters(): PlatformAdapters {
     },
   };
 }
+
+export function setupNotificationResponseListener(onTap: () => void): () => void {
+  if (isExpoGo) {
+    return () => {};
+  }
+  const { setupNotificationResponseListener: realSetup } = require('./notifications');
+  return realSetup(onTap);
+}
+

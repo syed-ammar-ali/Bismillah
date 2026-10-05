@@ -446,6 +446,112 @@ describe('services', () => {
       expect(inRepo?.closingNote).toBe('Alhamdulillah for completing 40 days.');
     });
   });
+
+  describe('notificationService', () => {
+    beforeEach(async () => {
+      await repos.journeyRepo.create(sampleJourney);
+      await repos.taskRepo.createMany([
+        {
+          id: 't-1',
+          journeyId: 'j-1',
+          title: 'Daily Prayer',
+          kind: 'daily',
+          sortOrder: 0,
+          activeFromDay: 1,
+        },
+        {
+          id: 't-2',
+          journeyId: 'j-1',
+          title: 'Quran Reading',
+          kind: 'daily',
+          sortOrder: 1,
+          activeFromDay: 1,
+        },
+      ]);
+      (fakeNotifications.scheduleDaily as jest.Mock).mockClear();
+      (fakeNotifications.scheduleOnce as jest.Mock).mockClear();
+      (fakeNotifications.cancelAll as jest.Mock).mockClear();
+    });
+
+    it('cancels all and reschedules daily reminder with live pending text', async () => {
+      await repos.settingsRepo.setMany({
+        reminderEnabled: true,
+        reminderTime: '06:00',
+      });
+
+      // Day 10 of sampleJourney, 0 completed so 2 tasks waiting
+      await services.notificationService.refresh();
+
+      expect(fakeNotifications.cancelAll).toHaveBeenCalled();
+      expect(fakeNotifications.scheduleDaily).toHaveBeenCalledWith(
+        expect.objectContaining({
+          hour: 6,
+          minute: 0,
+          title: 'Bismillah',
+          body: expect.stringContaining('2 tasks waiting'),
+        }),
+      );
+    });
+
+    it('updates reminder body text when tasks are completed today', async () => {
+      await repos.settingsRepo.setMany({
+        reminderEnabled: true,
+        reminderTime: '06:00',
+      });
+
+      // Complete 1 of the 2 tasks for Day 10
+      await repos.completionRepo.add({
+        id: 'comp-1',
+        journeyId: 'j-1',
+        taskId: 't-1',
+        dayNumber: 10,
+        completedAt: '2026-10-10T08:00:00.000Z',
+      });
+
+      await services.notificationService.refresh();
+
+      expect(fakeNotifications.scheduleDaily).toHaveBeenCalledWith(
+        expect.objectContaining({
+          body: expect.stringContaining('1 tasks waiting'),
+        }),
+      );
+    });
+
+    it('cancels evening nudge when all journeys are sealed today', async () => {
+      await repos.settingsRepo.setMany({
+        reminderEnabled: true,
+        eveningNudgeEnabled: true,
+        eveningNudgeTime: '23:59',
+      });
+
+      // Complete both tasks
+      await repos.completionRepo.add({
+        id: 'comp-1',
+        journeyId: 'j-1',
+        taskId: 't-1',
+        dayNumber: 10,
+        completedAt: '2026-10-10T08:00:00.000Z',
+      });
+      await repos.completionRepo.add({
+        id: 'comp-2',
+        journeyId: 'j-1',
+        taskId: 't-2',
+        dayNumber: 10,
+        completedAt: '2026-10-10T08:00:00.000Z',
+      });
+
+      await services.notificationService.refresh();
+
+      // scheduleOnce for evening nudge must NOT be called because day is sealed!
+      expect(fakeNotifications.scheduleOnce).not.toHaveBeenCalled();
+      expect(fakeNotifications.scheduleDaily).toHaveBeenCalledWith(
+        expect.objectContaining({
+          body: 'All journeys sealed today. Keep the glow alive!',
+        }),
+      );
+    });
+  });
 });
+
 
 

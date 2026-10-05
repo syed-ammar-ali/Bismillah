@@ -161,7 +161,7 @@ export default function TodayScreen() {
               Begin your spiritual discipline with clear daily commitments.
             </Text>
             <Button
-              title="Create a Journey"
+              title="Create your first journey"
               onPress={() => router.push('/journey/new')}
               style={styles.emptyButton}
             />

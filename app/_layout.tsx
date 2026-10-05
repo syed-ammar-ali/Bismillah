@@ -10,7 +10,7 @@ import {
 } from '@expo-google-fonts/inter';
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import React, { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -18,7 +18,7 @@ import { db } from '../db/client';
 import migrations from '../db/migrations/migrations';
 import { createRepositories } from '../db/repos';
 import { seedDatabase } from '../db/seed';
-import { getPlatformAdapters } from '../platform';
+import { getPlatformAdapters, setupNotificationResponseListener } from '../platform';
 import { createServices } from '../services/createServices';
 import { ServicesProvider } from '../services/ServicesContext';
 import { CelebrationHost } from '../components/celebrations/CelebrationHost';
@@ -96,6 +96,7 @@ export default function RootLayout() {
         }}
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="onboarding" options={{ headerShown: false }} />
         <Stack.Screen name="journey/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="journey/[id]/edit" options={{ headerShown: false }} />
         <Stack.Screen
@@ -106,9 +107,20 @@ export default function RootLayout() {
         <Stack.Screen name="gallery" options={{ headerShown: false }} />
         <Stack.Screen name="spike" options={{ title: 'Native Spike' }} />
       </Stack>
+      <NotificationResponseHandler />
       <CelebrationHost />
     </ServicesProvider>
   );
+}
+
+function NotificationResponseHandler() {
+  const router = useRouter();
+  useEffect(() => {
+    return setupNotificationResponseListener(() => {
+      router.replace('/(tabs)/today');
+    });
+  }, [router]);
+  return null;
 }
 
 const styles = StyleSheet.create({

@@ -41,6 +41,9 @@ export interface AppServices {
 
 export function createServices(deps: ServiceDeps): AppServices {
   const notificationService = new NotificationService(
+    deps.repos.journeyRepo,
+    deps.repos.taskRepo,
+    deps.repos.completionRepo,
     deps.repos.settingsRepo,
     deps.notifications,
     deps.clock,

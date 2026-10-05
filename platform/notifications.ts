@@ -15,21 +15,25 @@ export class RealNotificationPort implements NotificationPort {
         }),
       });
     } catch {
-      // Lazy fallback
+      // Lazy fallback outside native environment
     }
   }
 
   async requestPermission(): Promise<PermissionState> {
-    const Notifications = require('expo-notifications');
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-    if (existingStatus !== 'granted') {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
+    try {
+      const Notifications = require('expo-notifications');
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      if (finalStatus === 'granted') return 'granted';
+      if (finalStatus === 'denied') return 'denied';
+      return 'undetermined';
+    } catch {
+      return 'undetermined';
     }
-    if (finalStatus === 'granted') return 'granted';
-    if (finalStatus === 'denied') return 'denied';
-    return 'undetermined';
   }
 
   async scheduleDaily(spec: ScheduleDailySpec): Promise<void> {
@@ -38,7 +42,8 @@ export class RealNotificationPort implements NotificationPort {
       name: 'Daily Reminder',
       importance: Notifications.AndroidImportance.HIGH,
       vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#D4AF37',
+      lightColor: '#F59E0B',
+      enableLights: true,
     });
 
     await Notifications.scheduleNotificationAsync({
@@ -58,6 +63,14 @@ export class RealNotificationPort implements NotificationPort {
 
   async scheduleOnce(spec: ScheduleOnceSpec): Promise<void> {
     const Notifications = require('expo-notifications');
+    await Notifications.setNotificationChannelAsync('daily-reminder', {
+      name: 'Daily Reminder',
+      importance: Notifications.AndroidImportance.HIGH,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#F59E0B',
+      enableLights: true,
+    });
+
     await Notifications.scheduleNotificationAsync({
       content: {
         title: spec.title,
@@ -65,14 +78,37 @@ export class RealNotificationPort implements NotificationPort {
         sound: true,
       },
       trigger: {
+        channelId: 'daily-reminder',
         type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-        seconds: spec.triggerSeconds,
+        seconds: Math.max(1, spec.triggerSeconds),
       },
     });
   }
 
   async cancelAll(): Promise<void> {
+    try {
+      const Notifications = require('expo-notifications');
+      await Notifications.cancelAllScheduledNotificationsAsync();
+    } catch {
+      // Lazy fallback
+    }
+  }
+}
+
+export function setupNotificationResponseListener(onTap: () => void): () => void {
+  try {
     const Notifications = require('expo-notifications');
-    await Notifications.cancelAllScheduledNotificationsAsync();
+    const subscription = Notifications.addNotificationResponseReceivedListener(() => {
+      onTap();
+    });
+    return () => {
+      try {
+        subscription.remove();
+      } catch {
+        // noop
+      }
+    };
+  } catch {
+    return () => {};
   }
 }
