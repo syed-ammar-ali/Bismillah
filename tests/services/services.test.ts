@@ -10,11 +10,13 @@ import { createServices } from '../../services/createServices';
 import { useJourneyStore } from '../../stores/useJourneyStore';
 import { useUiStore } from '../../stores/useUiStore';
 import {
+  FakeBackupRepo,
   FakeCompletionRepo,
   FakeGapNoteRepo,
   FakeJourneyRepo,
   FakeMilestoneRepo,
   FakeSettingsRepo,
+  FakeStoragePort,
   FakeTaskRepo,
 } from '../fakes/fakeRepos';
 
@@ -45,6 +47,8 @@ describe('services', () => {
     supportsWidget: false,
   };
 
+  let fakeStorage: FakeStoragePort;
+
   let repos: {
     journeyRepo: FakeJourneyRepo;
     taskRepo: FakeTaskRepo;
@@ -52,6 +56,7 @@ describe('services', () => {
     gapNoteRepo: FakeGapNoteRepo;
     milestoneRepo: FakeMilestoneRepo;
     settingsRepo: FakeSettingsRepo;
+    backupRepo: FakeBackupRepo;
   };
 
   let services: ReturnType<typeof createServices>;
@@ -74,14 +79,32 @@ describe('services', () => {
     currentDate = '2026-10-10'; // day 10 of sampleJourney
     useUiStore.getState().clearCelebrations();
 
+    const journeyRepo = new FakeJourneyRepo();
+    const taskRepo = new FakeTaskRepo();
+    const completionRepo = new FakeCompletionRepo();
+    const gapNoteRepo = new FakeGapNoteRepo();
+    const milestoneRepo = new FakeMilestoneRepo();
+    const settingsRepo = new FakeSettingsRepo();
+    const backupRepo = new FakeBackupRepo(
+      journeyRepo,
+      taskRepo,
+      completionRepo,
+      gapNoteRepo,
+      milestoneRepo,
+      settingsRepo,
+    );
+
     repos = {
-      journeyRepo: new FakeJourneyRepo(),
-      taskRepo: new FakeTaskRepo(),
-      completionRepo: new FakeCompletionRepo(),
-      gapNoteRepo: new FakeGapNoteRepo(),
-      milestoneRepo: new FakeMilestoneRepo(),
-      settingsRepo: new FakeSettingsRepo(),
+      journeyRepo,
+      taskRepo,
+      completionRepo,
+      gapNoteRepo,
+      milestoneRepo,
+      settingsRepo,
+      backupRepo,
     };
+
+    fakeStorage = new FakeStoragePort();
 
     services = createServices({
       repos,
@@ -89,6 +112,7 @@ describe('services', () => {
       notifications: fakeNotifications,
       widget: fakeWidget,
       systemSettings: fakeSystemSettings,
+      storage: fakeStorage,
       capabilities: fakeCapabilities,
     });
   });
@@ -549,6 +573,164 @@ describe('services', () => {
           body: 'All journeys sealed today. Keep the glow alive!',
         }),
       );
+    });
+  });
+
+  describe('backupService', () => {
+    beforeEach(async () => {
+      await repos.journeyRepo.create(sampleJourney);
+      await repos.taskRepo.create({
+        id: 't-1',
+        journeyId: 'j-1',
+        title: 'Fajr',
+        kind: 'daily',
+        sortOrder: 0,
+        activeFromDay: 1,
+      });
+    });
+
+    it('exports all data to JSON, shares file, and updates lastBackupAt', async () => {
+      const res = await services.backupService.exportBackup();
+      expect(res.ok).toBe(true);
+      if (!res.ok) throw new Error(res.reason);
+
+      expect(res.value.filename).toContain('bismillah-backup-2026-10-10');
+      expect(fakeStorage.sharedFiles).toContain(res.value.fileUri);
+
+      // Check written JSON content
+      const writtenContent = fakeStorage.writtenFiles.get(res.value.fileUri);
+      expect(writtenContent).toBeDefined();
+      const parsed = JSON.parse(writtenContent!);
+      expect(parsed.schemaVersion).toBe(1);
+      expect(parsed.journeys).toHaveLength(1);
+      expect(parsed.journeys[0].id).toBe('j-1');
+      expect(parsed.tasks).toHaveLength(1);
+
+      // Check settings was updated with lastBackupAt
+      const settings = await repos.settingsRepo.getAll();
+      expect(settings.lastBackupAt).toBe('2026-10-10');
+    });
+
+    it('returns error when user cancels document picker during import', async () => {
+      fakeStorage.fileToPick = null;
+      const res = await services.backupService.importBackup();
+      expect(res.ok).toBe(false);
+      if (!res.ok) {
+        expect(res.reason).toContain('cancelled');
+      }
+    });
+
+    it('rejects invalid JSON syntax without mutating database', async () => {
+      fakeStorage.fileToPick = {
+        uri: 'file:///fake/broken.json',
+        content: '{ not valid json',
+        name: 'broken.json',
+      };
+
+      const res = await services.backupService.importBackup();
+      expect(res.ok).toBe(false);
+      if (!res.ok) {
+        expect(res.reason).toContain('JSON');
+      }
+
+      // Existing data must remain intact
+      const journeys = await repos.journeyRepo.getAll();
+      expect(journeys).toHaveLength(1);
+      expect(journeys[0]?.id).toBe('j-1');
+    });
+
+    it('rejects schema-violating JSON without mutating database', async () => {
+      fakeStorage.fileToPick = {
+        uri: 'file:///fake/invalid-schema.json',
+        content: JSON.stringify({
+          schemaVersion: 1,
+          exportedAt: '2026-10-10T10:00:00Z',
+          journeys: [{ id: 'bad-journey', name: '' }], // missing required fields
+          tasks: [],
+          task_completions: [],
+          day_logs: [],
+          milestones_seen: [],
+          settings: {},
+        }),
+        name: 'invalid-schema.json',
+      };
+
+      const res = await services.backupService.importBackup();
+      expect(res.ok).toBe(false);
+      if (!res.ok) {
+        expect(res.reason).toContain('Invalid backup schema');
+      }
+
+      // Existing data must remain intact
+      const journeys = await repos.journeyRepo.getAll();
+      expect(journeys).toHaveLength(1);
+      expect(journeys[0]?.id).toBe('j-1');
+    });
+
+    it('successfully restores valid backup JSON and triggers reconcile', async () => {
+      const validBackup = {
+        schemaVersion: 1,
+        exportedAt: '2026-10-10T12:00:00.000Z',
+        journeys: [
+          {
+            id: 'j-restored',
+            name: 'Restored Journey',
+            calendarType: 'gregorian' as const,
+            startInput: '2026-10-01',
+            endInput: '2026-10-30',
+            startDate: '2026-10-01',
+            endDate: '2026-10-30',
+            totalDays: 30,
+            sortOrder: 0,
+            createdAt: '2026-10-01T00:00:00.000Z',
+          },
+        ],
+        tasks: [
+          {
+            id: 't-restored',
+            journeyId: 'j-restored',
+            title: 'Morning Adhkar',
+            kind: 'daily' as const,
+            sortOrder: 0,
+            activeFromDay: 1,
+          },
+        ],
+        task_completions: [],
+        day_logs: [],
+        milestones_seen: [],
+        settings: {
+          hijriAdjustment: 0 as const,
+          reminderTime: '08:00',
+          reminderEnabled: true,
+          eveningNudgeEnabled: false,
+          eveningNudgeTime: '21:00',
+          onboardingDone: true,
+          batteryChecklistDone: true,
+          lastBackupAt: '2026-10-10',
+        },
+      };
+
+      fakeStorage.fileToPick = {
+        uri: 'file:///fake/backup.json',
+        content: JSON.stringify(validBackup),
+        name: 'backup.json',
+      };
+
+      const res = await services.backupService.importBackup();
+      expect(res.ok).toBe(true);
+
+      const journeys = await repos.journeyRepo.getAll();
+      expect(journeys).toHaveLength(1);
+      expect(journeys[0]?.id).toBe('j-restored');
+      expect(journeys[0]?.name).toBe('Restored Journey');
+
+      const tasks = await repos.taskRepo.getByJourney('j-restored');
+      expect(tasks).toHaveLength(1);
+      expect(tasks[0]?.title).toBe('Morning Adhkar');
+
+      // UI Store was refreshed through reconcile
+      expect(useJourneyStore.getState().journeys).toHaveLength(1);
+      expect(useJourneyStore.getState().journeys[0]?.id).toBe('j-restored');
     });
   });
 });

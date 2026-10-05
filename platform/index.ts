@@ -3,6 +3,7 @@ import {
   CapabilitiesPort,
   ClockPort,
   NotificationPort,
+  StoragePort,
   SystemSettingsPort,
   WidgetPort,
 } from '../core/ports';
@@ -14,6 +15,7 @@ import {
   noopCapabilities,
 } from './noop';
 import { RealNotificationPort } from './notifications';
+import { RealStoragePort } from './storage';
 import { RealSystemSettingsPort } from './systemSettings';
 import { RealWidgetPort } from './widget';
 
@@ -24,11 +26,13 @@ export interface PlatformAdapters {
   widget: WidgetPort;
   notifications: NotificationPort;
   systemSettings: SystemSettingsPort;
+  storage: StoragePort;
   capabilities: CapabilitiesPort;
 }
 
 export function getPlatformAdapters(): PlatformAdapters {
   const clock = new NoopClockPort();
+  const storage = new RealStoragePort();
 
   if (isExpoGo) {
     return {
@@ -36,6 +40,7 @@ export function getPlatformAdapters(): PlatformAdapters {
       widget: new NoopWidgetPort(),
       notifications: new NoopNotificationPort(),
       systemSettings: new NoopSystemSettingsPort(),
+      storage,
       capabilities: noopCapabilities,
     };
   }
@@ -45,6 +50,7 @@ export function getPlatformAdapters(): PlatformAdapters {
     widget: new RealWidgetPort(),
     notifications: new RealNotificationPort(),
     systemSettings: new RealSystemSettingsPort(),
+    storage,
     capabilities: {
       isExpoGo: false,
       supportsWidget: true,

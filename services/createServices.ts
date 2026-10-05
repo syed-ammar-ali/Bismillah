@@ -2,6 +2,7 @@ import {
   CapabilitiesPort,
   ClockPort,
   NotificationPort,
+  StoragePort,
   SystemSettingsPort,
   WidgetPort,
 } from '../core/ports';
@@ -23,6 +24,7 @@ export interface ServiceDeps {
   notifications: NotificationPort;
   widget: WidgetPort;
   systemSettings: SystemSettingsPort;
+  storage: StoragePort;
   capabilities: CapabilitiesPort;
 }
 
@@ -86,7 +88,13 @@ export function createServices(deps: ServiceDeps): AppServices {
     celebrationService,
     afterWrite,
   );
-  const backupService = new BackupService();
+  const backupService = new BackupService(
+    deps.repos.backupRepo,
+    deps.storage,
+    deps.repos.settingsRepo,
+    deps.clock,
+    rolloverService,
+  );
   const settingsService = new SettingsService(
     deps.repos.settingsRepo,
     journeyService,

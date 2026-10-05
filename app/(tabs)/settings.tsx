@@ -37,10 +37,12 @@ export default function SettingsTab() {
   const router = useRouter();
   const today = useAppStore((s) => s.today);
   const settings = useAppStore((s) => s.settings);
-  const { settingsService } = useServices();
+  const { settingsService, backupService } = useServices();
 
   const [permissionState, setPermissionState] = useState<PermissionState>('undetermined');
   const [activeTimePicker, setActiveTimePicker] = useState<'reminder' | 'nudge' | null>(null);
+  const [exporting, setExporting] = useState(false);
+  const [importing, setImporting] = useState(false);
 
   useEffect(() => {
     void settingsService.getNotificationPermission().then(setPermissionState);
@@ -146,6 +148,40 @@ export default function SettingsTab() {
       batteryChecklistDone: !settings.batteryChecklistDone,
     });
   }, [settings.batteryChecklistDone, settingsService]);
+
+  // Backup handlers
+  const handleExportBackup = useCallback(async () => {
+    setExporting(true);
+    const res = await backupService.exportBackup();
+    setExporting(false);
+    if (!res.ok) {
+      Alert.alert('Export Failed', res.reason);
+    }
+  }, [backupService]);
+
+  const handleImportBackup = useCallback(() => {
+    Alert.alert(
+      'Overwrite Existing Data?',
+      'Importing a backup will replace all current journeys, tasks, and settings with the contents of the backup file. This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Choose Backup File',
+          style: 'destructive',
+          onPress: async () => {
+            setImporting(true);
+            const res = await backupService.importBackup();
+            setImporting(false);
+            if (res.ok) {
+              Alert.alert('Import Complete', `Successfully restored ${res.value.journeysCount} journey(s).`);
+            } else if (res.reason !== 'Import cancelled') {
+              Alert.alert('Import Failed', res.reason);
+            }
+          },
+        },
+      ],
+    );
+  }, [backupService]);
 
   // Live Hijri Preview
   const previewHijri = toHijri(today, settings.hijriAdjustment);
@@ -460,13 +496,15 @@ export default function SettingsTab() {
               <Button
                 title="Export JSON"
                 variant="secondary"
-                onPress={() => Alert.alert('Backup', 'Full import/export automation will be active in Step 13.')}
+                onPress={handleExportBackup}
+                loading={exporting}
                 style={styles.halfBtn}
               />
               <Button
                 title="Import JSON"
                 variant="ghost"
-                onPress={() => Alert.alert('Backup', 'Full import/export automation will be active in Step 13.')}
+                onPress={handleImportBackup}
+                loading={importing}
                 style={styles.halfBtn}
               />
             </View>

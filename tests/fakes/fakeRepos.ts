@@ -1,10 +1,13 @@
+import { BackupData, CURRENT_SCHEMA_VERSION } from '../../core/backup';
 import { DEFAULT_SETTINGS } from '../../core/constants';
 import {
+  BackupRepo,
   CompletionRepo,
   GapNoteRepo,
   JourneyRepo,
   MilestoneRepo,
   SettingsRepo,
+  StoragePort,
   TaskRepo,
 } from '../../core/ports';
 import {
@@ -248,5 +251,58 @@ export class FakeSettingsRepo implements SettingsRepo {
 
   async replaceAll(newSettings: AppSettings): Promise<void> {
     this.settings = { ...newSettings };
+  }
+}
+
+export class FakeBackupRepo implements BackupRepo {
+  constructor(
+    private readonly journeyRepo: FakeJourneyRepo,
+    private readonly taskRepo: FakeTaskRepo,
+    private readonly completionRepo: FakeCompletionRepo,
+    private readonly gapNoteRepo: FakeGapNoteRepo,
+    private readonly milestoneRepo: FakeMilestoneRepo,
+    private readonly settingsRepo: FakeSettingsRepo,
+  ) {}
+
+  async exportAll(): Promise<BackupData> {
+    return {
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      exportedAt: new Date().toISOString(),
+      journeys: await this.journeyRepo.getAllIncludingArchived(),
+      tasks: await this.taskRepo.getAll(),
+      task_completions: await this.completionRepo.getAll(),
+      day_logs: await this.gapNoteRepo.getAll(),
+      milestones_seen: await this.milestoneRepo.getAll(),
+      settings: await this.settingsRepo.getAll(),
+    };
+  }
+
+  async replaceAll(data: BackupData): Promise<void> {
+    await this.journeyRepo.replaceAll(data.journeys);
+    await this.taskRepo.replaceAll(data.tasks);
+    await this.completionRepo.replaceAll(data.task_completions);
+    await this.gapNoteRepo.replaceAll(data.day_logs);
+    await this.milestoneRepo.replaceAll(data.milestones_seen);
+    await this.settingsRepo.replaceAll(data.settings);
+  }
+}
+
+export class FakeStoragePort implements StoragePort {
+  public writtenFiles: Map<string, string> = new Map();
+  public sharedFiles: string[] = [];
+  public fileToPick: { uri: string; content: string; name: string } | null = null;
+
+  async writeBackupFile(filename: string, content: string): Promise<string> {
+    const uri = `file:///fake/${filename}`;
+    this.writtenFiles.set(uri, content);
+    return uri;
+  }
+
+  async shareFile(fileUri: string): Promise<void> {
+    this.sharedFiles.push(fileUri);
+  }
+
+  async pickBackupFile(): Promise<{ uri: string; content: string; name: string } | null> {
+    return this.fileToPick;
   }
 }

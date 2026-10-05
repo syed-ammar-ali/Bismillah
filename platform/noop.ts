@@ -2,6 +2,7 @@ import {
   CapabilitiesPort,
   ClockPort,
   NotificationPort,
+  StoragePort,
   SystemSettingsPort,
   WidgetPort,
 } from '../core/ports';
@@ -51,7 +52,22 @@ export class NoopSystemSettingsPort implements SystemSettingsPort {
   }
 }
 
+export class NoopStoragePort implements StoragePort {
+  async writeBackupFile(filename: string, _content: string): Promise<string> {
+    return `file:///cache/${filename}`;
+  }
+
+  async shareFile(): Promise<void> {
+    // No-op
+  }
+
+  async pickBackupFile(): Promise<{ uri: string; content: string; name: string } | null> {
+    return null;
+  }
+}
+
 export const noopCapabilities: CapabilitiesPort = {
   isExpoGo: true,
   supportsWidget: false,
 };
+

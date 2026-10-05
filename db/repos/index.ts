@@ -1,4 +1,5 @@
 import {
+  BackupRepo,
   CompletionRepo,
   GapNoteRepo,
   JourneyRepo,
@@ -7,6 +8,7 @@ import {
   TaskRepo,
 } from '../../core/ports';
 import { AppDatabase, db } from '../client';
+import { DrizzleBackupRepo } from './backupRepo';
 import { DrizzleCompletionRepo } from './completionRepo';
 import { DrizzleGapNoteRepo } from './gapNoteRepo';
 import { DrizzleJourneyRepo } from './journeyRepo';
@@ -21,6 +23,7 @@ export interface Repositories {
   gapNoteRepo: GapNoteRepo;
   milestoneRepo: MilestoneRepo;
   settingsRepo: SettingsRepo;
+  backupRepo: BackupRepo;
 }
 
 export function createRepositories(database: AppDatabase = db): Repositories {
@@ -31,10 +34,12 @@ export function createRepositories(database: AppDatabase = db): Repositories {
     gapNoteRepo: new DrizzleGapNoteRepo(database),
     milestoneRepo: new DrizzleMilestoneRepo(database),
     settingsRepo: new DrizzleSettingsRepo(database),
+    backupRepo: new DrizzleBackupRepo(database),
   };
 }
 
 export {
+  DrizzleBackupRepo,
   DrizzleCompletionRepo,
   DrizzleGapNoteRepo,
   DrizzleJourneyRepo,

@@ -66,9 +66,20 @@ export interface SettingsRepo {
   replaceAll(settings: AppSettings): Promise<void>;
 }
 
+export interface BackupRepo {
+  exportAll(): Promise<import('./backup').BackupData>;
+  replaceAll(data: import('./backup').BackupData): Promise<void>;
+}
+
 // Environment Ports
 export interface ClockPort {
   today(): string;
+}
+
+export interface StoragePort {
+  writeBackupFile(filename: string, content: string): Promise<string>;
+  shareFile(fileUri: string, mimeType?: string, dialogTitle?: string): Promise<void>;
+  pickBackupFile(): Promise<{ uri: string; content: string; name: string } | null>;
 }
 
 export interface WidgetPort {
@@ -91,3 +102,4 @@ export interface CapabilitiesPort {
   isExpoGo: boolean;
   supportsWidget: boolean;
 }
+
