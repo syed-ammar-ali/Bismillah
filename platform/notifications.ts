@@ -42,7 +42,7 @@ export class RealNotificationPort implements NotificationPort {
       name: 'Daily Reminder',
       importance: Notifications.AndroidImportance.HIGH,
       vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#F59E0B',
+      lightColor: '#FFFFFF',
       enableLights: true,
     });
 
@@ -67,7 +67,7 @@ export class RealNotificationPort implements NotificationPort {
       name: 'Daily Reminder',
       importance: Notifications.AndroidImportance.HIGH,
       vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#F59E0B',
+      lightColor: '#FFFFFF',
       enableLights: true,
     });
 

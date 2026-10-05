@@ -36,7 +36,7 @@ export function ToastHost() {
       ? 'rgba(239, 68, 68, 0.4)'
       : activeToast.type === 'success'
         ? 'rgba(52, 211, 153, 0.4)'
-        : 'rgba(245, 158, 11, 0.4)';
+        : 'rgba(255, 255, 255, 0.4)';
 
   return (
     <View

@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     minHeight: layout.minTouchTarget,
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.md,
-    borderRadius: radius.md,
+    borderRadius: radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',

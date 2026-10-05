@@ -7,7 +7,7 @@ export interface GlowSpec {
   hasSecondHalo: boolean;
 }
 
-// Glow levels mapped to amber-gold bloom intensities.
+// Glow levels mapped to white/silver bloom intensities.
 // Each level corresponds to a streak tier (see design-system.md).
 // Radii are larger than before — the bloom needs to be visible on black.
 export const glowLevels: Record<GlowLevel, GlowSpec> = {

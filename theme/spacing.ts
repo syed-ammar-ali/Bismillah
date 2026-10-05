@@ -46,8 +46,8 @@ export const glass = {
     backgroundColor: 'rgba(255, 255, 255, 0.10)' as const,
   },
   gold: {
-    backgroundColor: 'rgba(245, 158, 11, 0.08)' as const,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)' as const,
     borderWidth: 1,
-    borderColor: 'rgba(245, 158, 11, 0.25)' as const,
+    borderColor: 'rgba(255, 255, 255, 0.25)' as const,
   },
 } as const;

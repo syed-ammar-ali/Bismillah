@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
   },
   activeBackground: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(245, 158, 11, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     borderRadius: radius.full,
     marginHorizontal: -12,
     marginVertical: -6,

@@ -41,14 +41,14 @@ export function GlassCard({
 }: GlassCardProps) {
   const bgColor =
     variant === 'gold'
-      ? 'rgba(245, 158, 11, 0.08)'
+      ? 'rgba(255, 255, 255, 0.08)'
       : variant === 'strong'
         ? 'rgba(255, 255, 255, 0.07)'
         : 'rgba(255, 255, 255, 0.04)';
 
   const borderColor =
     variant === 'gold'
-      ? 'rgba(245, 158, 11, 0.22)'
+      ? 'rgba(255, 255, 255, 0.22)'
       : 'rgba(255, 255, 255, 0.09)';
 
   const inner = (pressed: boolean) => (

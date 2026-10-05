@@ -1,5 +1,5 @@
 // ─── Obsidian Design System ──────────────────────────────────────────────────
-// OLED-black base, amber-gold accent, glass-simulated surfaces.
+// OLED-black base, stark white/silver accents, glass-simulated surfaces.
 // Every surface is near-transparent so true-black bleeds through on OLED.
 
 export const colors = {
@@ -21,11 +21,11 @@ export const colors = {
   border: 'rgba(255, 255, 255, 0.08)',
   borderSubtle: 'rgba(255, 255, 255, 0.08)',
 
-  // ── Gold accent ────────────────────────────────────────────────────
-  gold: '#F59E0B',                       // Amber 500 — rich, warm, luminous
-  goldSoft: '#FCD34D',                   // Amber 300 — highlights, secondary
-  goldDim: 'rgba(245, 158, 11, 0.35)',   // glow fills, backgrounds
-  goldGlow: 'rgba(245, 158, 11, 0.18)', // very faint ambient glow areas
+  // ── Accents ────────────────────────────────────────────────────────
+  gold: '#FFFFFF',                       // Stark White — primary accent, buttons
+  goldSoft: '#E5E5E5',                   // Light Silver — highlights, secondary
+  goldDim: 'rgba(255, 255, 255, 0.20)',  // glow fills, backgrounds
+  goldGlow: 'rgba(255, 255, 255, 0.12)', // very faint ambient glow areas
 
   // ── Text ───────────────────────────────────────────────────────────
   text: '#F5F5F5',                       // Near-white, not harsh
@@ -35,14 +35,14 @@ export const colors = {
   // ── Semantic ───────────────────────────────────────────────────────
   gap: 'rgba(161, 161, 170, 0.6)',       // Neutral gray — never punishing
   danger: '#F87171',                     // Red 400 — errors only
-  success: '#F59E0B',                    // same gold = achievement
+  success: '#FFFFFF',                    // same as primary = achievement
 } as const;
 
 // Journey accent colors (one per journey card dot in calendar view)
 export const journeyColors = [
-  '#F59E0B', // amber
-  '#818CF8', // indigo
-  '#34D399', // emerald
-  '#F472B6', // pink
+  '#FFFFFF', // stark white
+  '#A3A3A3', // neutral gray
+  '#525252', // dark gray
+  '#D4D4D8', // light silver
 ] as const;
 

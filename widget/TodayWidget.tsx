@@ -26,18 +26,18 @@ export function renderProgressRingSvg(done: number, total: number, size = 56): s
   const cy = size / 2;
 
   return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-    <circle cx="${cx}" cy="${cy}" r="${r}" stroke="rgba(245, 158, 11, 0.18)" stroke-width="${strokeWidth}" fill="none" />
-    <circle cx="${cx}" cy="${cy}" r="${r}" stroke="#F59E0B" stroke-width="${strokeWidth}" fill="none" stroke-dasharray="${c}" stroke-dashoffset="${offset}" stroke-linecap="round" transform="rotate(-90 ${cx} ${cy})" />
+    <circle cx="${cx}" cy="${cy}" r="${r}" stroke="rgba(255, 255, 255, 0.18)" stroke-width="${strokeWidth}" fill="none" />
+    <circle cx="${cx}" cy="${cy}" r="${r}" stroke="#FFFFFF" stroke-width="${strokeWidth}" fill="none" stroke-dasharray="${c}" stroke-dashoffset="${offset}" stroke-linecap="round" transform="rotate(-90 ${cx} ${cy})" />
   </svg>`;
 }
 
-export function renderCrescentSvg(size = 32, color = '#F59E0B'): string {
+export function renderCrescentSvg(size = 32, color = '#FFFFFF'): string {
   return `<svg width="${size}" height="${size}" viewBox="0 0 24 24">
     <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="${color}" />
   </svg>`;
 }
 
-export function renderCircleBoxSvg(size = 16, color = 'rgba(245, 158, 11, 0.5)'): string {
+export function renderCircleBoxSvg(size = 16, color = 'rgba(255, 255, 255, 0.5)'): string {
   return `<svg width="${size}" height="${size}" viewBox="0 0 24 24">
     <circle cx="12" cy="12" r="9" stroke="${color}" stroke-width="2" fill="none" />
   </svg>`;
@@ -81,7 +81,7 @@ export function TodayWidgetSmall({ snapshot }: { snapshot?: WidgetSnapshot | nul
           style={{
             fontSize: 10,
             fontWeight: 'bold',
-            color: '#F59E0B',
+            color: '#FFFFFF',
             letterSpacing: 1,
           }}
         />
@@ -97,7 +97,7 @@ export function TodayWidgetSmall({ snapshot }: { snapshot?: WidgetSnapshot | nul
       {/* Center Display */}
       {noJourneys ? (
         <FlexWidget style={{ alignItems: 'center', justifyContent: 'center' }}>
-          <SvgWidget svg={renderCrescentSvg(28, '#F59E0B')} style={{ width: 28, height: 28 }} />
+          <SvgWidget svg={renderCrescentSvg(28, '#FFFFFF')} style={{ width: 28, height: 28 }} />
           <TextWidget
             text="No journey today"
             style={{ fontSize: 12, fontWeight: 'bold', color: '#F8FAFC', marginTop: 4 }}
@@ -109,10 +109,10 @@ export function TodayWidgetSmall({ snapshot }: { snapshot?: WidgetSnapshot | nul
         </FlexWidget>
       ) : allSealed ? (
         <FlexWidget style={{ alignItems: 'center', justifyContent: 'center' }}>
-          <SvgWidget svg={renderCrescentSvg(30, '#F59E0B')} style={{ width: 30, height: 30 }} />
+          <SvgWidget svg={renderCrescentSvg(30, '#FFFFFF')} style={{ width: 30, height: 30 }} />
           <TextWidget
             text="All sealed"
-            style={{ fontSize: 13, fontWeight: 'bold', color: '#F59E0B', marginTop: 3 }}
+            style={{ fontSize: 13, fontWeight: 'bold', color: '#FFFFFF', marginTop: 3 }}
           />
           <TextWidget
             text={maxStreak > 0 ? `${maxStreak}d streak` : 'Complete today'}
@@ -139,7 +139,7 @@ export function TodayWidgetSmall({ snapshot }: { snapshot?: WidgetSnapshot | nul
           </OverlapWidget>
           <TextWidget
             text={maxStreak > 0 ? `${maxStreak}d streak` : `${totalAll - doneAll} left`}
-            style={{ fontSize: 10, color: '#F59E0B', fontWeight: 'bold', marginTop: 3 }}
+            style={{ fontSize: 10, color: '#FFFFFF', fontWeight: 'bold', marginTop: 3 }}
           />
         </FlexWidget>
       )}
@@ -199,19 +199,19 @@ export function TodayWidgetMedium({ snapshot }: { snapshot?: WidgetSnapshot | nu
           style={{
             fontSize: 10,
             fontWeight: 'bold',
-            color: '#F59E0B',
+            color: '#FFFFFF',
             letterSpacing: 1,
           }}
         />
 
         {noJourneys ? (
-          <SvgWidget svg={renderCrescentSvg(28, '#F59E0B')} style={{ width: 28, height: 28 }} />
+          <SvgWidget svg={renderCrescentSvg(28, '#FFFFFF')} style={{ width: 28, height: 28 }} />
         ) : allSealed ? (
           <FlexWidget style={{ alignItems: 'center' }}>
-            <SvgWidget svg={renderCrescentSvg(26, '#F59E0B')} style={{ width: 26, height: 26 }} />
+            <SvgWidget svg={renderCrescentSvg(26, '#FFFFFF')} style={{ width: 26, height: 26 }} />
             <TextWidget
               text="All sealed"
-              style={{ fontSize: 11, fontWeight: 'bold', color: '#F59E0B', marginTop: 2 }}
+              style={{ fontSize: 11, fontWeight: 'bold', color: '#FFFFFF', marginTop: 2 }}
             />
           </FlexWidget>
         ) : (
@@ -275,7 +275,7 @@ export function TodayWidgetMedium({ snapshot }: { snapshot?: WidgetSnapshot | nu
           <FlexWidget style={{ justifyContent: 'center', height: 'match_parent' }} clickAction="OPEN_APP">
             <TextWidget
               text="All journeys sealed!"
-              style={{ fontSize: 13, fontWeight: 'bold', color: '#F59E0B' }}
+              style={{ fontSize: 13, fontWeight: 'bold', color: '#FFFFFF' }}
             />
             <TextWidget
               text="All daily tasks completed for today."
@@ -314,7 +314,7 @@ export function TodayWidgetMedium({ snapshot }: { snapshot?: WidgetSnapshot | nu
                 style={{
                   fontSize: 10,
                   fontWeight: 'bold',
-                  color: '#F59E0B',
+                  color: '#FFFFFF',
                   marginLeft: 4,
                 }}
               />
@@ -343,7 +343,7 @@ export function TodayWidgetMedium({ snapshot }: { snapshot?: WidgetSnapshot | nu
                     dayNumber: activeJourney?.dayNumber,
                   }}
                 >
-                  <SvgWidget svg={renderCircleBoxSvg(14, '#F59E0B')} style={{ width: 14, height: 14 }} />
+                  <SvgWidget svg={renderCircleBoxSvg(14, '#FFFFFF')} style={{ width: 14, height: 14 }} />
                   <FlexWidget style={{ flex: 1, marginLeft: 6 }}>
                     <TextWidget
                       text={task.title}
