@@ -49,9 +49,10 @@ export class JourneyService {
       return { ok: false, reason: 'Journey name is required' };
     }
 
-    if (!input.dailyTasks || input.dailyTasks.length === 0) {
-      return { ok: false, reason: 'At least one daily task is required' };
-    }
+    const dailyTasksList =
+      input.dailyTasks && input.dailyTasks.length > 0
+        ? input.dailyTasks
+        : [{ title: 'Daily Check-in' }];
 
     let startDate: string;
     let endDate: string;
@@ -103,7 +104,7 @@ export class JourneyService {
     const tasksToInsert: Task[] = [];
     let order = 0;
 
-    for (const dt of input.dailyTasks) {
+    for (const dt of dailyTasksList) {
       tasksToInsert.push({
         id: `task-${journeyId}-${order}`,
         journeyId,
@@ -167,13 +168,17 @@ export class JourneyService {
       const existingTasks = await this.taskRepo.getByJourney(input.id);
       const incomingIds = new Set(input.tasks.map((t) => t.id).filter(Boolean));
 
-      // 1. Soft-deactivate tasks that were removed
+      // 1. Soft-deactivate or delete tasks that were removed
       for (const oldTask of existingTasks) {
-        if (!incomingIds.has(oldTask.id) && oldTask.activeToDay === null) {
-          await this.taskRepo.update({
-            id: oldTask.id,
-            activeToDay: Math.max(1, currentDay - 1),
-          });
+        if (!incomingIds.has(oldTask.id)) {
+          if (!hasStarted) {
+            await this.taskRepo.delete(oldTask.id);
+          } else if (oldTask.activeToDay == null || oldTask.activeToDay >= currentDay) {
+            await this.taskRepo.update({
+              id: oldTask.id,
+              activeToDay: Math.max(0, currentDay - 1),
+            });
+          }
         }
       }
 

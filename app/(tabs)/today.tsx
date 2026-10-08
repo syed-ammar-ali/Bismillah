@@ -3,16 +3,18 @@ import React, { useCallback, useState } from 'react';
 import {
   FlatList,
   Pressable,
-  SafeAreaView,
+  ScrollView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ProgressRing } from '../../components/ring/ProgressRing';
 import { TaskCard } from '../../components/tasks/TaskCard';
 import { Button } from '../../components/ui/Button';
 import { Crescent } from '../../components/ui/Crescent';
 import { StreakBadge } from '../../components/journey/StreakBadge';
+import { formatDisplayDateHeader } from '../../core/dates';
 import { useToday } from '../../hooks/useToday';
 import { ActiveJourneyToday, useTodayViewModel } from '../../hooks/useTodayViewModel';
 import { useServices } from '../../services/ServicesContext';
@@ -122,6 +124,7 @@ const TodayJourneySection = React.memo(function TodayJourneySection({
 
 export default function TodayScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { today, hijri } = useToday();
   const { activeJourneys, totalDone, totalTasks, gapAlerts } = useTodayViewModel();
   const { tickService } = useServices();
@@ -164,46 +167,70 @@ export default function TodayScreen() {
       <FlatList
         data={activeJourneys}
         keyExtractor={keyExtractor}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: 150 + insets.bottom },
+        ]}
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={
           <View style={styles.headerContainer}>
             {/* Faint watermark crescent */}
             <View style={styles.watermark} pointerEvents="none">
-              <Crescent size={150} color={colors.gold} opacity={0.05} />
+              <Crescent size={130} color={colors.gold} opacity={0.035} />
             </View>
 
             {/* Date header */}
             <View style={styles.dateHeader}>
-              <Text style={styles.todayDate}>{today.toUpperCase()}</Text>
+              <Text style={styles.todayDate}>{formatDisplayDateHeader(today).toUpperCase()}</Text>
               <Text style={styles.hijriDate}>{hijri.formatted}</Text>
             </View>
 
             {/* Overall progress ring */}
             {totalTasks > 0 ? (
               <View style={styles.ringWrapper}>
-                <ProgressRing progress={progressFraction} size={156} strokeWidth={8}>
-                  <Text style={styles.ringDoneText}>
-                    {totalDone}<Text style={styles.ringTotalText}>/{totalTasks}</Text>
-                  </Text>
-                  <Text style={styles.ringSubText}>
-                    {totalDone === totalTasks && totalTasks > 0 ? '✦ ALL SEALED' : 'TASKS COMPLETED'}
-                  </Text>
+                <ProgressRing progress={progressFraction} size={168} strokeWidth={9}>
+                  <View style={styles.ringCenterContainer}>
+                    <View style={styles.ringNumberRow}>
+                      <Text style={styles.ringDoneText}>{totalDone}</Text>
+                      <Text style={styles.ringSlashText}>/</Text>
+                      <Text style={styles.ringTotalText}>{totalTasks}</Text>
+                    </View>
+                    <Text style={styles.ringSubText}>
+                      {totalDone === totalTasks && totalTasks > 0 ? '✦ ALL SEALED' : 'TASKS DONE'}
+                    </Text>
+                  </View>
                 </ProgressRing>
               </View>
             ) : null}
 
-            {/* Gap Alerts */}
+            {/* Gap Alerts: Peaceful, subtle horizontal carousel */}
             {gapAlerts.length > 0 ? (
               <View style={styles.gapAlertsContainer}>
-                {gapAlerts.map((alert) => (
-                  <View key={`${alert.journeyId}-${alert.dayNumber}`} style={styles.gapBanner}>
-                    <Text style={styles.gapBannerTitle}>Notice</Text>
-                    <Text style={styles.gapBannerText}>
-                      Yesterday was missed in {alert.journeyName}. You can add a reason or make up missed tasks.
-                    </Text>
-                  </View>
-                ))}
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.gapScrollContent}
+                >
+                  {gapAlerts.map((alert) => (
+                    <Pressable
+                      key={`${alert.journeyId}-${alert.dayNumber}`}
+                      onPress={() => router.push(`/journey/${alert.journeyId}`)}
+                      style={styles.gapBanner}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Missed day in ${alert.journeyName}. Tap to make up.`}
+                    >
+                      <View style={styles.gapHeaderRow}>
+                        <View style={styles.gapDot} />
+                        <Text style={styles.gapBannerTitle} numberOfLines={1}>
+                          Missed Day · {alert.journeyName}
+                        </Text>
+                      </View>
+                      <Text style={styles.gapBannerText} numberOfLines={2}>
+                        Tap to add a reason or make up missed tasks →
+                      </Text>
+                    </Pressable>
+                  ))}
+                </ScrollView>
               </View>
             ) : null}
           </View>
@@ -235,7 +262,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: spacing.screenPadding,
-    paddingBottom: 110, // clear floating tab pill
     gap: spacing.xl,
   },
   headerContainer: {
@@ -244,8 +270,8 @@ const styles = StyleSheet.create({
   },
   watermark: {
     position: 'absolute',
-    top: -10,
-    right: -10,
+    top: 0,
+    right: 0,
     zIndex: -1,
   },
   dateHeader: {
@@ -268,47 +294,80 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginVertical: spacing.md,
   },
+  ringCenterContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  ringNumberRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'center',
+  },
   ringDoneText: {
     fontFamily: fontFamilies.numeral,
-    fontSize: 36,
-    letterSpacing: -1,
+    fontSize: 34,
+    letterSpacing: -0.5,
     color: colors.gold,
   },
-  ringTotalText: {
+  ringSlashText: {
     fontFamily: fontFamilies.heading,
-    fontSize: 22,
-    color: colors.textMuted,
+    fontSize: 26,
+    color: 'rgba(255, 255, 255, 0.40)',
+    marginHorizontal: 3,
+  },
+  ringTotalText: {
+    fontFamily: fontFamilies.numeral,
+    fontSize: 32,
+    color: 'rgba(255, 255, 255, 0.85)',
   },
   ringSubText: {
     fontFamily: fontFamilies.labelStrong,
     fontSize: 10,
-    color: colors.textMuted,
+    color: colors.goldSoft,
     letterSpacing: 1.2,
     marginTop: 2,
+    opacity: 0.85,
+    textAlign: 'center',
   },
   gapAlertsContainer: {
+    marginTop: spacing.xs,
+  },
+  gapScrollContent: {
     gap: spacing.sm,
+    paddingRight: spacing.sm,
   },
   gapBanner: {
-    backgroundColor: colors.surfaceGlass,
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.25)',
-    padding: spacing.md,
+    borderColor: 'rgba(255, 255, 255, 0.10)',
+    paddingVertical: spacing.md - 2,
+    paddingHorizontal: spacing.md,
+    width: 290,
+  },
+  gapHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+    marginBottom: 4,
+  },
+  gapDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: 'rgba(255, 255, 255, 0.50)',
   },
   gapBannerTitle: {
     fontFamily: fontFamilies.labelStrong,
-    fontSize: 11,
-    color: colors.danger,
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-    marginBottom: 2,
+    fontSize: 12,
+    color: colors.goldSoft,
+    letterSpacing: 0.5,
   },
   gapBannerText: {
     fontFamily: fontFamilies.body,
-    color: colors.text,
-    fontSize: 13,
-    lineHeight: 18,
+    color: colors.textMuted,
+    fontSize: 12,
+    lineHeight: 16,
   },
   journeySection: {
     backgroundColor: colors.surfaceGlass,
@@ -346,10 +405,10 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   sealedCollapseBanner: {
-    backgroundColor: 'rgba(245, 158, 11, 0.08)',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: 'rgba(245, 158, 11, 0.22)',
+    borderColor: 'rgba(255, 255, 255, 0.12)',
     padding: spacing.md,
     flexDirection: 'row',
     justifyContent: 'space-between',

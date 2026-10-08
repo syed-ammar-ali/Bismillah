@@ -1,3 +1,4 @@
+import * as Haptics from 'expo-haptics';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { DayCalendarInfo, DayJourneyMarker } from '../../core/calendar';
@@ -8,6 +9,7 @@ import { fontFamilies } from '../../theme/typography';
 export interface CalendarDayCellProps {
   dayInfo: DayCalendarInfo;
   isDisabled?: boolean;
+  calendarMode?: 'gregorian' | 'hijri';
   onPress: (dateString: string) => void;
 }
 
@@ -56,6 +58,7 @@ function renderDot(marker: DayJourneyMarker, index: number) {
 export const CalendarDayCell = React.memo(function CalendarDayCell({
   dayInfo,
   isDisabled = false,
+  calendarMode = 'gregorian',
   onPress,
 }: CalendarDayCellProps) {
   const {
@@ -67,14 +70,25 @@ export const CalendarDayCell = React.memo(function CalendarDayCell({
     markers,
   } = dayInfo;
 
+  const isHijriMode = calendarMode === 'hijri';
+  const primaryNumber = isHijriMode ? hijriDay : gregorianDay;
+  const secondaryNumber = isHijriMode ? gregorianDay : hijriDay;
+
   const visibleMarkers = markers.slice(0, 4);
   const hasMoreMarkers = markers.length > 4;
 
   return (
     <Pressable
-      onPress={() => onPress(dateString)}
+      onPress={() => {
+        void Haptics.selectionAsync();
+        onPress(dateString);
+      }}
       accessibilityRole="button"
-      accessibilityLabel={`Day ${gregorianDay}, Hijri day ${hijriDay}${isToday ? ', Today' : ''}${hasDeadline ? ', Deadline day' : ''}`}
+      accessibilityLabel={
+        isHijriMode
+          ? `Hijri day ${hijriDay}, Gregorian day ${gregorianDay}${isToday ? ', Today' : ''}${hasDeadline ? ', Deadline day' : ''}`
+          : `Day ${gregorianDay}, Hijri day ${hijriDay}${isToday ? ', Today' : ''}${hasDeadline ? ', Deadline day' : ''}`
+      }
       style={({ pressed }) => [
         styles.cell,
         isToday && styles.todayCell,
@@ -89,7 +103,7 @@ export const CalendarDayCell = React.memo(function CalendarDayCell({
         </View>
       ) : null}
 
-      {/* Gregorian Number */}
+      {/* Primary Number */}
       <Text
         style={[
           styles.gregorianText,
@@ -97,10 +111,10 @@ export const CalendarDayCell = React.memo(function CalendarDayCell({
           isDisabled && styles.disabledText,
         ]}
       >
-        {gregorianDay}
+        {primaryNumber}
       </Text>
 
-      {/* Hijri Number beneath */}
+      {/* Secondary Number beneath */}
       <Text
         style={[
           styles.hijriText,
@@ -108,7 +122,7 @@ export const CalendarDayCell = React.memo(function CalendarDayCell({
           isDisabled && styles.disabledText,
         ]}
       >
-        {hijriDay}
+        {secondaryNumber}
       </Text>
 
       {/* Journey dots */}
@@ -131,7 +145,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
   },
   todayCell: {
-    backgroundColor: 'rgba(245, 158, 11, 0.12)',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     borderWidth: 1,
     borderColor: colors.gold,
   },

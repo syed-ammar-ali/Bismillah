@@ -57,16 +57,17 @@ export const JourneyCard = React.memo(function JourneyCard({
       ]}
     >
       {/* Ambient glow bloom — visible on OLED black */}
-      {glowLevel > 0 ? (
+      {glowLevel > 0 && !isCompleted ? (
         <View style={styles.glowWrapper} pointerEvents="none">
           <Svg width="100%" height="100%" viewBox="0 0 300 120">
             <Defs>
-              <RadialGradient id={`cardGlow-${journey.id}`} cx="15%" cy="50%" rx="40%" ry="100%">
-                <Stop offset="0%" stopColor="#F59E0B" stopOpacity={String(spec.opacity * 0.6)} />
-                <Stop offset="100%" stopColor="#F59E0B" stopOpacity="0" />
+              <RadialGradient id={`cardGlow-${journey.id}`} cx="20%" cy="50%" rx="45%" ry="80%">
+                <Stop offset="0%" stopColor="#FFFFFF" stopOpacity={String(Math.min(0.18, spec.opacity * 0.3))} />
+                <Stop offset="60%" stopColor="#FFFFFF" stopOpacity={String(Math.min(0.06, spec.opacity * 0.1))} />
+                <Stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
               </RadialGradient>
             </Defs>
-            <Circle cx="45" cy="60" r="90" fill={`url(#cardGlow-${journey.id})`} />
+            <Circle cx="55" cy="60" r="85" fill={`url(#cardGlow-${journey.id})`} />
           </Svg>
         </View>
       ) : null}
@@ -110,7 +111,11 @@ export const JourneyCard = React.memo(function JourneyCard({
           </Text>
 
           <View style={styles.statusRow}>
-            {isSealedToday ? (
+            {isCompleted ? (
+              <View style={[styles.statusChip, styles.statusChipCompleted]}>
+                <Text style={[styles.statusChipText, styles.statusChipTextSealed]}>Completed ✦</Text>
+              </View>
+            ) : isSealedToday ? (
               <View style={[styles.statusChip, styles.statusChipSealed]}>
                 <Text style={[styles.statusChipText, styles.statusChipTextSealed]}>Sealed ✦</Text>
               </View>
@@ -128,7 +133,7 @@ export const JourneyCard = React.memo(function JourneyCard({
           </View>
         </View>
 
-        <StreakBadge streak={currentStreak} glowLevel={glowLevel} size="small" />
+        <StreakBadge streak={currentStreak} glowLevel={isCompleted ? 0 : glowLevel} size="small" />
       </View>
     </Pressable>
   );
@@ -146,8 +151,8 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   cardCompleted: {
-    backgroundColor: 'rgba(245, 158, 11, 0.06)',
-    borderColor: 'rgba(245, 158, 11, 0.20)',
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    borderColor: 'rgba(255, 255, 255, 0.16)',
   },
   cardUpcoming: {
     opacity: 0.55,
@@ -203,12 +208,12 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2,
   },
   completedBadge: {
-    backgroundColor: 'rgba(245, 158, 11, 0.15)',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     borderRadius: radius.full,
     paddingHorizontal: 7,
     paddingVertical: 3,
     borderWidth: 1,
-    borderColor: 'rgba(245, 158, 11, 0.30)',
+    borderColor: 'rgba(255, 255, 255, 0.20)',
   },
   completedText: {
     fontSize: 10,
@@ -249,8 +254,12 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.08)',
   },
   statusChipSealed: {
-    backgroundColor: 'rgba(245, 158, 11, 0.12)',
-    borderColor: 'rgba(245, 158, 11, 0.25)',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    borderColor: 'rgba(255, 255, 255, 0.22)',
+  },
+  statusChipCompleted: {
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: 'rgba(255, 255, 255, 0.18)',
   },
   statusChipUpcoming: {
     backgroundColor: 'rgba(255, 255, 255, 0.04)',

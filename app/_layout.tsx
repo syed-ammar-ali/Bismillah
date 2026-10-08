@@ -12,9 +12,11 @@ import {
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import React, { useEffect, useMemo, useState } from 'react';
 import { AppState, Pressable, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { CelebrationHost } from '../components/celebrations/CelebrationHost';
 import { ErrorBoundary } from '../components/ui/ErrorBoundary';
 import { ToastHost } from '../components/ui/ToastHost';
@@ -148,36 +150,39 @@ export default function RootLayout() {
   }
 
   return (
-    <ErrorBoundary>
-      <ServicesProvider services={services}>
-        <Stack
-          screenOptions={{
-            headerStyle: {
-              backgroundColor: colors.bg,
-            },
-            headerTintColor: colors.gold,
-            contentStyle: {
-              backgroundColor: colors.bg,
-            },
-          }}
-        >
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-          <Stack.Screen name="journey/[id]" options={{ headerShown: false }} />
-          <Stack.Screen name="journey/[id]/edit" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="journey/[id]/complete"
-            options={{ headerShown: false, presentation: 'fullScreenModal' }}
-          />
-          <Stack.Screen name="journey/new" options={{ headerShown: false }} />
-          <Stack.Screen name="gallery" options={{ headerShown: false }} />
-          <Stack.Screen name="spike" options={{ title: 'Native Spike' }} />
-        </Stack>
-        <NotificationResponseHandler />
-        <CelebrationHost />
-        <ToastHost />
-      </ServicesProvider>
-    </ErrorBoundary>
+    <SafeAreaProvider style={{ flex: 1, backgroundColor: colors.bg }}>
+      <StatusBar style="light" />
+      <ErrorBoundary>
+        <ServicesProvider services={services}>
+          <Stack
+            screenOptions={{
+              headerStyle: {
+                backgroundColor: colors.bg,
+              },
+              headerTintColor: colors.gold,
+              contentStyle: {
+                backgroundColor: colors.bg,
+              },
+            }}
+          >
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+            <Stack.Screen name="journey/[id]" options={{ headerShown: false }} />
+            <Stack.Screen name="journey/[id]/edit" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="journey/[id]/complete"
+              options={{ headerShown: false, presentation: 'fullScreenModal' }}
+            />
+            <Stack.Screen name="journey/new" options={{ headerShown: false }} />
+            <Stack.Screen name="gallery" options={{ headerShown: false }} />
+            <Stack.Screen name="spike" options={{ title: 'Native Spike' }} />
+          </Stack>
+          <NotificationResponseHandler />
+          <CelebrationHost />
+          <ToastHost />
+        </ServicesProvider>
+      </ErrorBoundary>
+    </SafeAreaProvider>
   );
 }
 

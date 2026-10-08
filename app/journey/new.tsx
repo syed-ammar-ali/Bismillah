@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { JourneyForm, JourneyFormData } from '../../components/journey/JourneyForm';
 import { useServices } from '../../services/ServicesContext';
 import { colors } from '../../theme/colors';

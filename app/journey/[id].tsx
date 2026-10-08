@@ -2,14 +2,13 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ArrowLeft, Calendar, Pencil } from 'lucide-react-native';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-  Alert,
   Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -38,7 +37,7 @@ export default function JourneyDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const today = useAppStore((s) => s.today);
   const vm = useJourneyViewModel(id ?? '');
-  const { tickService, journeyService } = useServices();
+  const { tickService } = useServices();
 
   const [selectedDayNumber, setSelectedDayNumber] = useState<number | null>(null);
 
@@ -74,24 +73,6 @@ export default function JourneyDetailScreen() {
     [tickService],
   );
 
-  const handleToggleArchive = useCallback(async () => {
-    if (!vm) return;
-    const isArchived = Boolean(vm.journey.archivedAt);
-    if (isArchived) {
-      router.push(`/journey/${vm.journey.id}/edit`);
-      return;
-    }
-
-    Alert.alert('Archive Journey', `Archive "${vm.journey.name}"? It will be moved to the archive list.`, [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Archive',
-        onPress: async () => {
-          await journeyService.archive(vm.journey.id);
-        },
-      },
-    ]);
-  }, [vm, journeyService, router]);
 
   if (!vm) {
     return (
@@ -172,9 +153,9 @@ export default function JourneyDetailScreen() {
               <Svg width={230} height={230} viewBox="0 0 100 100">
                 <Defs>
                   <RadialGradient id="heroGlowGrad" cx="50%" cy="50%" rx="50%" ry="50%">
-                    <Stop offset="0%" stopColor={colors.goldSoft} stopOpacity="1" />
-                    <Stop offset="65%" stopColor={colors.gold} stopOpacity="0.4" />
-                    <Stop offset="100%" stopColor={colors.gold} stopOpacity="0" />
+                    <Stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.22" />
+                    <Stop offset="55%" stopColor="#FFFFFF" stopOpacity="0.06" />
+                    <Stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
                   </RadialGradient>
                 </Defs>
                 <Circle cx="50" cy="50" r="50" fill="url(#heroGlowGrad)" />
@@ -184,8 +165,8 @@ export default function JourneyDetailScreen() {
                     cy="50"
                     r="47"
                     stroke={colors.goldSoft}
-                    strokeWidth="1"
-                    strokeOpacity="0.5"
+                    strokeWidth="0.8"
+                    strokeOpacity="0.35"
                     fill="none"
                   />
                 ) : null}
@@ -205,7 +186,7 @@ export default function JourneyDetailScreen() {
 
               <StreakBadge
                 streak={streakInfo.currentStreak}
-                glowLevel={streakInfo.glowLevel}
+                glowLevel={0}
                 size="medium"
               />
             </View>
@@ -319,10 +300,12 @@ export default function JourneyDetailScreen() {
               </View>
               <Text style={styles.legendLabel}>Gap</Text>
             </View>
-            <View style={styles.legendItem}>
-              <View style={[styles.legendDot, styles.legendToday]} />
-              <Text style={styles.legendLabel}>Today</Text>
-            </View>
+            {!isCompleted && todayDayNumber !== null ? (
+              <View style={styles.legendItem}>
+                <View style={[styles.legendDot, styles.legendToday]} />
+                <Text style={styles.legendLabel}>Today</Text>
+              </View>
+            ) : null}
           </View>
 
           {/* Day Grid */}
@@ -333,20 +316,6 @@ export default function JourneyDetailScreen() {
               onDayPress={(day) => setSelectedDayNumber(day)}
             />
           </View>
-        </View>
-
-        {/* Quick archive/restore action at bottom */}
-        <View style={styles.footerActions}>
-          <Pressable
-            onPress={handleToggleArchive}
-            style={styles.archiveActionButton}
-            accessibilityRole="button"
-            accessibilityLabel={journey.archivedAt ? 'Edit journey' : 'Archive journey'}
-          >
-            <Text style={styles.archiveActionText}>
-              {journey.archivedAt ? 'Edit / Restore Journey' : 'Archive This Journey'}
-            </Text>
-          </Pressable>
         </View>
       </ScrollView>
 

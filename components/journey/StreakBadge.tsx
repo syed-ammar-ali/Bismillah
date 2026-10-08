@@ -49,7 +49,9 @@ export function StreakBadge({
     opacity: pulseOpacity.value,
   }));
 
-  const glowDimension = size === 'small' ? 56 : 72;
+  const reactId = React.useId();
+  const gradId = `streak-grad-${reactId.replace(/:/g, '')}-${streak}`;
+  const glowDimension = size === 'small' ? 68 : 88;
   const crescentSize = size === 'small' ? 14 : 18;
 
   return (
@@ -69,21 +71,21 @@ export function StreakBadge({
             viewBox="0 0 100 100"
           >
             <Defs>
-              <RadialGradient id="streakGlowGrad" cx="50%" cy="50%" rx="50%" ry="50%">
-                <Stop offset="0%" stopColor={colors.goldSoft} stopOpacity="1" />
-                <Stop offset="60%" stopColor={colors.gold} stopOpacity="0.5" />
-                <Stop offset="100%" stopColor={colors.gold} stopOpacity="0" />
+              <RadialGradient id={gradId} cx="50%" cy="50%" rx="50%" ry="50%">
+                <Stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.25" />
+                <Stop offset="55%" stopColor="#FFFFFF" stopOpacity="0.08" />
+                <Stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
               </RadialGradient>
             </Defs>
-            <Circle cx="50" cy="50" r="50" fill="url(#streakGlowGrad)" />
+            <Circle cx="50" cy="50" r="50" fill={`url(#${gradId})`} />
             {spec.hasSecondHalo ? (
               <Circle
                 cx="50"
                 cy="50"
-                r="45"
+                r="46"
                 stroke={colors.goldSoft}
-                strokeWidth="1"
-                strokeOpacity="0.6"
+                strokeWidth="0.8"
+                strokeOpacity="0.35"
                 fill="none"
               />
             ) : null}

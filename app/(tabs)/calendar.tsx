@@ -1,12 +1,12 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import {
   Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Calendar, DateData } from 'react-native-calendars';
 import { CalendarDayCell } from '../../components/calendar/CalendarDayCell';
 import { CalendarFilterChips } from '../../components/calendar/CalendarFilterChips';
@@ -20,6 +20,7 @@ import { radius, spacing } from '../../theme/spacing';
 import { fontFamilies } from '../../theme/typography';
 
 export default function CalendarTab() {
+  const insets = useSafeAreaInsets();
   const today = useAppStore((s) => s.today);
   const hijriAdjustment = useAppStore((s) => s.settings.hijriAdjustment);
   const journeys = useJourneyStore((s) => s.journeys);
@@ -40,6 +41,7 @@ export default function CalendarTab() {
     month: todayParts.month,
   });
 
+  const [calendarMode, setCalendarMode] = useState<'gregorian' | 'hijri'>('gregorian');
   const [selectedJourneyId, setSelectedJourneyId] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
@@ -86,6 +88,7 @@ export default function CalendarTab() {
         <CalendarDayCell
           dayInfo={dayInfo}
           isDisabled={state === 'disabled'}
+          calendarMode={calendarMode}
           onPress={handleDayPress}
         />
       );
@@ -98,6 +101,7 @@ export default function CalendarTab() {
       hijriAdjustment,
       selectedJourneyId,
       journeyColorMap,
+      calendarMode,
       handleDayPress,
     ],
   );
@@ -114,14 +118,55 @@ export default function CalendarTab() {
     <SafeAreaView style={styles.container}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: 150 + insets.bottom },
+        ]}
       >
-        {/* Screen Title */}
+        {/* Screen Title & Calendar Mode Toggle */}
         <View style={styles.header}>
-          <Text style={styles.screenTitle}>Calendar</Text>
-          <Text style={styles.screenSubtitle}>
-            Unified Gregorian & Hijri timeline
-          </Text>
+          <View style={styles.headerTitleRow}>
+            <View>
+              <Text style={styles.screenTitle}>Calendar</Text>
+              <Text style={styles.screenSubtitle}>
+                {calendarMode === 'hijri' ? 'Hijri timeline & months' : 'Unified Gregorian & Hijri timeline'}
+              </Text>
+            </View>
+
+            {/* Mode Switcher: Gregorian vs Hijri */}
+            <View style={styles.modeTogglePill}>
+              <Pressable
+                onPress={() => setCalendarMode('gregorian')}
+                style={[styles.modeButton, calendarMode === 'gregorian' && styles.modeButtonActive]}
+                accessibilityRole="button"
+                accessibilityLabel="Switch to Gregorian mode"
+              >
+                <Text
+                  style={[
+                    styles.modeButtonText,
+                    calendarMode === 'gregorian' && styles.modeButtonTextActive,
+                  ]}
+                >
+                  Gregorian
+                </Text>
+              </Pressable>
+              <Pressable
+                onPress={() => setCalendarMode('hijri')}
+                style={[styles.modeButton, calendarMode === 'hijri' && styles.modeButtonActive]}
+                accessibilityRole="button"
+                accessibilityLabel="Switch to Hijri mode"
+              >
+                <Text
+                  style={[
+                    styles.modeButtonText,
+                    calendarMode === 'hijri' && styles.modeButtonTextActive,
+                  ]}
+                >
+                  Hijri
+                </Text>
+              </Pressable>
+            </View>
+          </View>
         </View>
 
         {/* Journey Filter Chips */}
@@ -220,6 +265,35 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: spacing.xs,
+  },
+  headerTitleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  modeTogglePill: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    borderRadius: radius.full,
+    padding: 3,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.10)',
+  },
+  modeButton: {
+    paddingVertical: 5,
+    paddingHorizontal: 12,
+    borderRadius: radius.full,
+  },
+  modeButtonActive: {
+    backgroundColor: colors.gold,
+  },
+  modeButtonText: {
+    fontFamily: fontFamilies.labelStrong,
+    fontSize: 11,
+    color: colors.textMuted,
+  },
+  modeButtonTextActive: {
+    color: '#060709',
   },
   screenTitle: {
     fontFamily: fontFamilies.display,

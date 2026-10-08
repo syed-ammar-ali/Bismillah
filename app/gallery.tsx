@@ -2,12 +2,12 @@ import { Redirect, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
   Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { DayCircle } from '../components/grid/DayCircle';
 import { DayGrid } from '../components/grid/DayGrid';
 import { JourneyCard } from '../components/journey/JourneyCard';

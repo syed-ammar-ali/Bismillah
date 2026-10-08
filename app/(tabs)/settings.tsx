@@ -14,13 +14,13 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
   Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Switch,
   Text,
   View,
 } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TimePickerSheet } from '../../components/settings/TimePickerSheet';
 import { Button } from '../../components/ui/Button';
 import { GlassCard } from '../../components/ui/GlassCard';
@@ -35,6 +35,7 @@ import { fontFamilies } from '../../theme/typography';
 
 export default function SettingsTab() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const today = useAppStore((s) => s.today);
   const settings = useAppStore((s) => s.settings);
   const { settingsService, backupService } = useServices();
@@ -194,7 +195,10 @@ export default function SettingsTab() {
     <SafeAreaView style={styles.container}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: 130 + insets.bottom },
+        ]}
       >
         {/* Header */}
         <View style={styles.header}>

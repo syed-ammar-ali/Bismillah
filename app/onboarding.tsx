@@ -12,12 +12,12 @@ import React, { useState } from 'react';
 import {
   Alert,
   Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '../components/ui/Button';
 import { Crescent } from '../components/ui/Crescent';
 import { GlassCard } from '../components/ui/GlassCard';

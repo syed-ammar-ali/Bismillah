@@ -4,11 +4,11 @@ import React, { useCallback, useMemo, useState } from 'react';
 import {
   FlatList,
   Pressable,
-  SafeAreaView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { LogEntry } from '../core/types';
 import { clearLogs, getLogs } from '../services/logger';
 import { colors } from '../theme/colors';

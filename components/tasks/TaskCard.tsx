@@ -2,11 +2,12 @@ import * as Haptics from 'expo-haptics';
 import React, { useCallback, useEffect } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
+  Easing,
   useAnimatedStyle,
   useSharedValue,
-  withSpring,
+  withTiming,
 } from 'react-native-reanimated';
-import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
+import Svg, { Circle } from 'react-native-svg';
 import { colors } from '../../theme/colors';
 import { layout, radius, spacing } from '../../theme/spacing';
 
@@ -28,22 +29,26 @@ export const TaskCard = React.memo(function TaskCard({
   const checkScale = useSharedValue(isCompleted ? 1 : 0);
 
   useEffect(() => {
-    checkScale.value = withSpring(isCompleted ? 1 : 0, {
-      damping: 14,
-      stiffness: 180,
+    checkScale.value = withTiming(isCompleted ? 1 : 0, {
+      duration: 130,
+      easing: Easing.out(Easing.quad),
     });
   }, [isCompleted, checkScale]);
 
   const animatedCheckStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: checkScale.value }],
+    transform: [{ scale: 0.85 + 0.15 * checkScale.value }],
     opacity: checkScale.value,
   }));
 
   const handlePress = useCallback(() => {
     if (disabled) return;
-    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (isCompleted) {
+      void Haptics.selectionAsync();
+    } else {
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
     onToggle();
-  }, [disabled, onToggle]);
+  }, [disabled, isCompleted, onToggle]);
 
   return (
     <Pressable
@@ -59,35 +64,27 @@ export const TaskCard = React.memo(function TaskCard({
         disabled && styles.disabled,
       ]}
     >
-      {/* Check circle with SVG arc border */}
+      {/* Check circle */}
       <View style={styles.checkboxWrapper}>
-        {isCompleted ? (
-          <Animated.View style={[styles.checkboxFilled, animatedCheckStyle]}>
-            <Svg width={28} height={28} viewBox="0 0 28 28">
-              <Defs>
-                <LinearGradient id={`checkGrad-${title}`} x1="0" y1="0" x2="1" y2="1">
-                  <Stop offset="0%" stopColor="#F59E0B" />
-                  <Stop offset="100%" stopColor="#FCD34D" />
-                </LinearGradient>
-              </Defs>
-              <Circle cx="14" cy="14" r="13" fill={`url(#checkGrad-${title})`} />
-            </Svg>
-            <Text style={styles.checkMark}>✓</Text>
-          </Animated.View>
-        ) : (
-          <View style={styles.checkboxEmpty}>
-            <Svg width={28} height={28} viewBox="0 0 28 28">
-              <Circle
-                cx="14"
-                cy="14"
-                r="13"
-                fill="none"
-                stroke="rgba(255,255,255,0.15)"
-                strokeWidth="1.5"
-              />
-            </Svg>
-          </View>
-        )}
+        <View style={styles.checkboxEmpty}>
+          <Svg width={26} height={26} viewBox="0 0 26 26">
+            <Circle
+              cx="13"
+              cy="13"
+              r="12"
+              fill="none"
+              stroke="rgba(255,255,255,0.20)"
+              strokeWidth="1.5"
+            />
+          </Svg>
+        </View>
+
+        <Animated.View style={[styles.checkboxFilled, animatedCheckStyle]} pointerEvents="none">
+          <Svg width={26} height={26} viewBox="0 0 26 26">
+            <Circle cx="13" cy="13" r="12" fill="#FFFFFF" />
+          </Svg>
+          <Text style={styles.checkMark}>✓</Text>
+        </Animated.View>
       </View>
 
       <View style={styles.textContainer}>
@@ -123,8 +120,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   cardCompleted: {
-    backgroundColor: 'rgba(245, 158, 11, 0.07)',
-    borderColor: 'rgba(245, 158, 11, 0.20)',
+    backgroundColor: 'rgba(255, 255, 255, 0.02)',
+    borderColor: 'rgba(255, 255, 255, 0.12)',
   },
   pressed: {
     transform: [{ scale: 0.98 }],
@@ -147,11 +144,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   checkboxFilled: {
-    width: 28,
-    height: 28,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'relative',
   },
   checkMark: {
     position: 'absolute',

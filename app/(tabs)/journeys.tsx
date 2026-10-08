@@ -4,11 +4,11 @@ import React, { useCallback, useMemo } from 'react';
 import {
   FlatList,
   Pressable,
-  SafeAreaView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { JourneyCard } from '../../components/journey/JourneyCard';
 import { Crescent } from '../../components/ui/Crescent';
 import { daysBetween, isAfterDate, isBeforeDate } from '../../core/dates';
@@ -68,6 +68,7 @@ const JourneyRow = React.memo(function JourneyRow({
 
 export default function JourneysScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const today = useAppStore((s) => s.today);
   const journeys = useJourneyStore((s) => s.journeys);
   const tasksRecord = useJourneyStore((s) => s.tasks);
@@ -151,20 +152,34 @@ export default function JourneysScreen() {
 
   const keyExtractor = useCallback((item: JourneyItemData) => item.journey.id, []);
 
+  const activeCount = journeyItems.filter((j) => j.state === 'active').length;
+  const completedCount = journeyItems.filter((j) => j.state === 'completed').length;
+  const upcomingCount = journeyItems.filter((j) => j.state === 'upcoming').length;
+
+  const subtitleText = useMemo(() => {
+    if (journeyItems.length === 0) return 'No journeys yet';
+    const parts: string[] = [];
+    if (activeCount > 0) parts.push(`${activeCount} in progress`);
+    if (completedCount > 0) parts.push(`${completedCount} completed`);
+    if (upcomingCount > 0) parts.push(`${upcomingCount} upcoming`);
+    return parts.join(' · ') || `${journeyItems.length} total`;
+  }, [journeyItems.length, activeCount, completedCount, upcomingCount]);
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Journeys</Text>
-        <Text style={styles.headerSubtitle}>
-          {journeyItems.length} {journeyItems.length === 1 ? 'journey' : 'journeys'} in progress
-        </Text>
+        <Text style={styles.headerSubtitle}>{subtitleText}</Text>
       </View>
 
       <FlatList
         data={journeyItems}
         keyExtractor={keyExtractor}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[
+          styles.listContent,
+          { paddingBottom: 160 + insets.bottom },
+        ]}
         showsVerticalScrollIndicator={false}
         renderItem={renderItem}
         ListEmptyComponent={
@@ -180,7 +195,7 @@ export default function JourneysScreen() {
 
       {/* Floating "+" Button - sits comfortably above the floating tab pill */}
       <Pressable
-        style={styles.fab}
+        style={[styles.fab, { bottom: 94 + insets.bottom }]}
         onPress={() => router.push('/journey/new')}
         accessibilityRole="button"
         accessibilityLabel="Create new journey"

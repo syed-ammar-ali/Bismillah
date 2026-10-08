@@ -78,3 +78,8 @@ export function formatDisplayDateShort(dateString: string): string {
   return format(date, 'd MMM yyyy');
 }
 
+export function formatDisplayDateHeader(dateString: string): string {
+  const date = parseISODate(dateString);
+  return format(date, 'EEE, d MMM yyyy');
+}
+

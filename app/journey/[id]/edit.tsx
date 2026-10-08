@@ -1,8 +1,10 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { Alert, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { JourneyForm, JourneyFormData } from '../../../components/journey/JourneyForm';
 import { isAfterDate } from '../../../core/dates';
+import { dayNumberFor } from '../../../core/timeline';
 import { useServices } from '../../../services/ServicesContext';
 import { useAppStore } from '../../../stores/useAppStore';
 import { useJourneyStore } from '../../../stores/useJourneyStore';
@@ -19,6 +21,13 @@ export default function EditJourneyScreen() {
   const { journeyService } = useServices();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const currentDay = journey ? dayNumberFor(journey, today) ?? 1 : 1;
+  const activeTasks = useMemo(() => {
+    return tasks.filter(
+      (t) => t.activeToDay === null || t.activeToDay === undefined || t.activeToDay >= currentDay,
+    );
+  }, [tasks, currentDay]);
 
   if (!journey) {
     return (
@@ -69,19 +78,6 @@ export default function EditJourneyScreen() {
     }
   };
 
-  const handleArchive = async () => {
-    try {
-      const res = await journeyService.archive(journey.id);
-      if (!res.ok) {
-        Alert.alert('Error', res.reason);
-        return;
-      }
-      router.replace('/(tabs)/journeys');
-    } catch (err) {
-      Alert.alert('Error', String(err));
-    }
-  };
-
   const handleDelete = async () => {
     try {
       const res = await journeyService.delete(journey.id);
@@ -111,10 +107,9 @@ export default function EditJourneyScreen() {
 
       <JourneyForm
         initialJourney={journey}
-        initialTasks={tasks}
+        initialTasks={activeTasks}
         isStarted={isStarted}
         onSubmit={handleUpdate}
-        onArchive={handleArchive}
         onDelete={handleDelete}
         isSubmitting={isSubmitting}
       />
