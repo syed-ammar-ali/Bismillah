@@ -20,6 +20,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { CelebrationHost } from '../components/celebrations/CelebrationHost';
 import { ErrorBoundary } from '../components/ui/ErrorBoundary';
 import { ToastHost } from '../components/ui/ToastHost';
+import { msUntilNextMidnight } from '../core/dates';
 import { db } from '../db/client';
 import migrations from '../db/migrations/migrations';
 import { createRepositories } from '../db/repos';
@@ -94,16 +95,7 @@ export default function RootLayout() {
     let timerId: ReturnType<typeof setTimeout> | null = null;
 
     const scheduleNextMidnight = () => {
-      const now = new Date();
-      const tomorrow = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate() + 1,
-        0,
-        0,
-        2, // 2 seconds past midnight
-      );
-      const ms = Math.max(1000, tomorrow.getTime() - now.getTime());
+      const ms = msUntilNextMidnight();
 
       timerId = setTimeout(() => {
         void services.rolloverService.reconcile();

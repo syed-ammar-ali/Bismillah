@@ -83,3 +83,16 @@ export function formatDisplayDateHeader(dateString: string): string {
   return format(date, 'EEE, d MMM yyyy');
 }
 
+export function msUntilNextMidnight(): number {
+  const now = new Date();
+  const tomorrow = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate() + 1,
+    0,
+    0,
+    2,
+  );
+  return Math.max(1000, tomorrow.getTime() - now.getTime());
+}
+

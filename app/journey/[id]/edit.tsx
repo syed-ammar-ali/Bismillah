@@ -12,12 +12,14 @@ import { colors } from '../../../theme/colors';
 import { spacing } from '../../../theme/spacing';
 import { fontFamilies } from '../../../theme/typography';
 
+const EMPTY_ARRAY: any[] = [];
+
 export default function EditJourneyScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const today = useAppStore((s) => s.today);
   const journey = useJourneyStore((s) => s.journeys.find((j) => j.id === id));
-  const tasks = useJourneyStore((s) => s.tasks[id ?? '']) ?? [];
+  const tasks = useJourneyStore((s) => s.tasks[id ?? '']) ?? EMPTY_ARRAY;
   const { journeyService } = useServices();
 
   const [isSubmitting, setIsSubmitting] = useState(false);

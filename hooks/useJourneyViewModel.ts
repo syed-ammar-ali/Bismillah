@@ -8,11 +8,13 @@ import { DayStatus } from '../core/types';
 import { useAppStore } from '../stores/useAppStore';
 import { useJourneyStore } from '../stores/useJourneyStore';
 
+const EMPTY_ARRAY: any[] = [];
+
 export function useJourneyViewModel(journeyId: string) {
   const today = useAppStore((s) => s.today);
   const journey = useJourneyStore((s) => s.journeys.find((j) => j.id === journeyId) ?? null);
-  const tasks = useJourneyStore((s) => s.tasks[journeyId]) ?? [];
-  const completions = useJourneyStore((s) => s.completions[journeyId]) ?? [];
+  const tasks = useJourneyStore((s) => s.tasks[journeyId]) ?? EMPTY_ARRAY;
+  const completions = useJourneyStore((s) => s.completions[journeyId]) ?? EMPTY_ARRAY;
 
   return useMemo(() => {
     if (!journey) {
