@@ -44,8 +44,8 @@ export interface CompletionViewProps {
 export function CompletionView({ journey, onDone, isOverlay = false }: CompletionViewProps) {
   const { journeyService } = useServices();
   const today = useAppStore((s) => s.today);
-  const tasks = useJourneyStore((s) => s.tasks[journey.id] ?? []);
-  const completions = useJourneyStore((s) => s.completions[journey.id] ?? []);
+  const tasks = useJourneyStore((s) => s.tasks[journey.id]) ?? [];
+  const completions = useJourneyStore((s) => s.completions[journey.id]) ?? [];
 
   const [closingNote, setClosingNote] = useState(journey.closingNote ?? '');
   const [submitting, setSubmitting] = useState(false);

@@ -41,9 +41,9 @@ const STATUS_LABELS: Record<DayStatus, string> = {
 export function DaySheet({ visible, onClose, journey, dayNumber }: DaySheetProps) {
   const today = useAppStore((s) => s.today);
   const hijriAdjustment = useAppStore((s) => s.settings.hijriAdjustment);
-  const tasks = useJourneyStore((s) => s.tasks[journey.id] ?? []);
-  const completions = useJourneyStore((s) => s.completions[journey.id] ?? []);
-  const dayLogs = useJourneyStore((s) => s.dayLogs[journey.id] ?? []);
+  const tasks = useJourneyStore((s) => s.tasks[journey.id]) ?? [];
+  const completions = useJourneyStore((s) => s.completions[journey.id]) ?? [];
+  const dayLogs = useJourneyStore((s) => s.dayLogs[journey.id]) ?? [];
 
   const { gapService, tickService } = useServices();
 
