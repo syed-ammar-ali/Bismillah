@@ -14,7 +14,7 @@ import { useFonts } from 'expo-font';
 import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { AppState, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { CelebrationHost } from '../components/celebrations/CelebrationHost';
@@ -24,7 +24,6 @@ import { msUntilNextMidnight } from '../core/dates';
 import { db } from '../db/client';
 import migrations from '../db/migrations/migrations';
 import { createRepositories } from '../db/repos';
-import { seedDatabase } from '../db/seed';
 import { getPlatformAdapters, setupNotificationResponseListener } from '../platform';
 import { createServices } from '../services/createServices';
 import { ServicesProvider } from '../services/ServicesContext';
@@ -45,7 +44,6 @@ export default function RootLayout() {
   });
 
   const { success: migrationsSuccess, error: migrationsError } = useMigrations(db, migrations);
-  const [seeded, setSeeded] = useState(!__DEV__);
 
   const services = useMemo(() => {
     const repos = createRepositories(db);
@@ -56,26 +54,16 @@ export default function RootLayout() {
     });
   }, []);
 
-  // Seed dev database if in development
-  useEffect(() => {
-    if (migrationsSuccess && __DEV__) {
-      const repos = createRepositories(db);
-      void seedDatabase(repos).then(() => {
-        setSeeded(true);
-      });
-    }
-  }, [migrationsSuccess]);
-
   // Initial reconcile
   useEffect(() => {
-    if (migrationsSuccess && seeded) {
+    if (migrationsSuccess) {
       void services.rolloverService.reconcile();
     }
-  }, [migrationsSuccess, seeded, services]);
+  }, [migrationsSuccess, services]);
 
   // AppState listener: reload store on every foreground (handling widget writes / date change)
   useEffect(() => {
-    if (!migrationsSuccess || !seeded) return;
+    if (!migrationsSuccess) return;
 
     const subscription = AppState.addEventListener('change', (nextState) => {
       if (nextState === 'active') {
@@ -86,11 +74,11 @@ export default function RootLayout() {
     return () => {
       subscription.remove();
     };
-  }, [migrationsSuccess, seeded, services]);
+  }, [migrationsSuccess, services]);
 
   // Midnight timer: automatically trigger rollover at next midnight
   useEffect(() => {
-    if (!migrationsSuccess || !seeded) return;
+    if (!migrationsSuccess) return;
 
     let timerId: ReturnType<typeof setTimeout> | null = null;
 
@@ -108,14 +96,14 @@ export default function RootLayout() {
     return () => {
       if (timerId) clearTimeout(timerId);
     };
-  }, [migrationsSuccess, seeded, services]);
+  }, [migrationsSuccess, services]);
 
   // Splash screen dismissal
   useEffect(() => {
-    if ((fontsLoaded || fontError) && (migrationsSuccess || migrationsError) && seeded) {
+    if ((fontsLoaded || fontError) && (migrationsSuccess || migrationsError)) {
       void SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, fontError, migrationsSuccess, migrationsError, seeded]);
+  }, [fontsLoaded, fontError, migrationsSuccess, migrationsError]);
 
   if (migrationsError) {
     return (
@@ -137,7 +125,7 @@ export default function RootLayout() {
     );
   }
 
-  if ((!fontsLoaded && !fontError) || !migrationsSuccess || !seeded) {
+  if ((!fontsLoaded && !fontError) || !migrationsSuccess) {
     return null;
   }
 
@@ -166,8 +154,6 @@ export default function RootLayout() {
               options={{ headerShown: false, presentation: 'fullScreenModal' }}
             />
             <Stack.Screen name="journey/new" options={{ headerShown: false }} />
-            <Stack.Screen name="gallery" options={{ headerShown: false }} />
-            <Stack.Screen name="spike" options={{ title: 'Native Spike' }} />
           </Stack>
           <NotificationResponseHandler />
           <CelebrationHost />

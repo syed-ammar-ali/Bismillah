@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ArrowLeft, Calendar, Pencil } from 'lucide-react-native';
+import { ArrowLeft, Pencil } from 'lucide-react-native';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Pressable,
@@ -222,20 +222,7 @@ export default function JourneyDetailScreen() {
           </View>
         </View>
 
-        {/* Deadline Countdown banner if set */}
-        {journey.deadlineDate ? (
-          <View style={styles.deadlineContainer}>
-            <Calendar size={16} color={colors.goldSoft} />
-            <Text style={styles.deadlineText}>
-              {journey.deadlineLabel || 'Target'} ·{' '}
-              {vm.deadlineDaysLeft !== null
-                ? vm.deadlineDaysLeft > 0
-                  ? `${vm.deadlineDaysLeft} days left`
-                  : 'Deadline reached'
-                : journey.deadlineDate}
-            </Text>
-          </View>
-        ) : null}
+
 
         {/* Today's Tasks Section (if active today) */}
         {todayDayNumber !== null && todayTasksList.length > 0 ? (
@@ -452,23 +439,7 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginTop: 2,
   },
-  deadlineContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.xs,
-    marginHorizontal: spacing.lg,
-    marginTop: spacing.md,
-    backgroundColor: colors.surface,
-    paddingVertical: spacing.xs + 2,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  deadlineText: {
-    fontSize: 13,
-    color: colors.goldSoft,
-  },
+
   sectionContainer: {
     marginHorizontal: spacing.lg,
     marginTop: spacing.xl,

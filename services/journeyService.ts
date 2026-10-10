@@ -1,4 +1,4 @@
-import { isAfterDate } from '../core/dates';
+import { isAfterDate, isValidDateString } from '../core/dates';
 import { fromHijri } from '../core/hijri';
 import { dayNumberFor, totalDays } from '../core/timeline';
 import { ClockPort, JourneyRepo, SettingsRepo, TaskRepo } from '../core/ports';
@@ -69,11 +69,24 @@ export class JourneyService {
       startDate = fromHijri(sy, sm, sd, adjustment).gregorianDate;
       endDate = fromHijri(ey, em, ed, adjustment).gregorianDate;
     } else {
+      if (!isValidDateString(input.startInput) || !isValidDateString(input.endInput)) {
+        return { ok: false, reason: 'Start and end dates must be in YYYY-MM-DD format' };
+      }
       startDate = input.startInput;
       endDate = input.endInput;
     }
 
-    const count = totalDays(startDate, endDate);
+    if (input.deadlineDate && !isValidDateString(input.deadlineDate)) {
+      return { ok: false, reason: 'Deadline date must be in YYYY-MM-DD format' };
+    }
+
+    let count: number;
+    try {
+      count = totalDays(startDate, endDate);
+    } catch {
+      return { ok: false, reason: 'Invalid date string provided' };
+    }
+    
     if (count <= 0) {
       return { ok: false, reason: 'End date must be on or after start date' };
     }
@@ -159,6 +172,16 @@ export class JourneyService {
       ) {
         return { ok: false, reason: 'Dates cannot be changed once a journey has started' };
       }
+    }
+
+    if (input.startInput && !isValidDateString(input.startInput)) {
+      return { ok: false, reason: 'Start date must be in YYYY-MM-DD format' };
+    }
+    if (input.endInput && !isValidDateString(input.endInput)) {
+      return { ok: false, reason: 'End date must be in YYYY-MM-DD format' };
+    }
+    if (input.deadlineDate && !isValidDateString(input.deadlineDate)) {
+      return { ok: false, reason: 'Deadline date must be in YYYY-MM-DD format' };
     }
 
     const currentDay = dayNumberFor(existing, today) ?? 1;

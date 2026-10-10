@@ -11,7 +11,7 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { JourneyCard } from '../../components/journey/JourneyCard';
 import { Crescent } from '../../components/ui/Crescent';
-import { daysBetween, isAfterDate, isBeforeDate } from '../../core/dates';
+import { isAfterDate, isBeforeDate } from '../../core/dates';
 import { journeyProgress, todayTasks } from '../../core/progress';
 import { dayStatus } from '../../core/status';
 import { computeStreakInfo } from '../../core/streak';
@@ -33,7 +33,6 @@ interface JourneyItemData {
   todayDoneCount?: number;
   todayTotalCount?: number;
   isSealedToday: boolean;
-  deadlineText: string | null;
   state: 'upcoming' | 'active' | 'completed';
 }
 
@@ -59,7 +58,6 @@ const JourneyRow = React.memo(function JourneyRow({
       todayDoneCount={item.todayDoneCount}
       todayTotalCount={item.todayTotalCount}
       isSealedToday={item.isSealedToday}
-      deadlineCountdownText={item.deadlineText}
       state={item.state}
       onPress={handlePress}
     />
@@ -92,47 +90,55 @@ export default function JourneysScreen() {
         const streakInfo = computeStreakInfo(dayStatuses, refDay, journey.totalDays);
         const progress = journeyProgress(journey, dayStatuses);
 
-        let state: 'upcoming' | 'active' | 'completed' = 'active';
-        if (isBeforeDate(today, journey.startDate)) {
-          state = 'upcoming';
-        } else if (
-          journey.completionShownAt ||
-          dayStatuses[journey.totalDays] === 'sealed' ||
-          isAfterDate(today, journey.endDate)
-        ) {
-          state = 'completed';
+        try {
+          let state: 'upcoming' | 'active' | 'completed' = 'active';
+          if (isBeforeDate(today, journey.startDate)) {
+            state = 'upcoming';
+          } else if (
+            journey.completionShownAt ||
+            dayStatuses[journey.totalDays] === 'sealed' ||
+            isAfterDate(today, journey.endDate)
+          ) {
+            state = 'completed';
+          }
+
+          let todayDoneCount: number | undefined;
+          let todayTotalCount: number | undefined;
+          let isSealedToday = false;
+
+          if (currentDayNumber !== null) {
+            const tTasks = todayTasks(currentDayNumber, tasks, completions);
+            todayDoneCount = tTasks.filter((t) => t.isCompleted).length;
+            todayTotalCount = tTasks.length;
+            isSealedToday = dayStatuses[currentDayNumber] === 'sealed';
+          }
+
+
+          return {
+            journey,
+            dayNumber: currentDayNumber,
+            progressFraction: progress.progressFraction,
+            currentStreak: streakInfo.currentStreak,
+            bestStreak: streakInfo.bestStreak,
+            glowLevel: streakInfo.glowLevel,
+            todayDoneCount,
+            todayTotalCount,
+            isSealedToday,
+            state,
+          };
+        } catch {
+          // If a journey has corrupted date strings, fallback safely to prevent crash
+          return {
+            journey,
+            dayNumber: null,
+            progressFraction: 0,
+            currentStreak: 0,
+            bestStreak: 0,
+            glowLevel: 0 as GlowLevel,
+            isSealedToday: false,
+            state: 'completed' as const,
+          };
         }
-
-        let todayDoneCount: number | undefined;
-        let todayTotalCount: number | undefined;
-        let isSealedToday = false;
-
-        if (currentDayNumber !== null) {
-          const tTasks = todayTasks(currentDayNumber, tasks, completions);
-          todayDoneCount = tTasks.filter((t) => t.isCompleted).length;
-          todayTotalCount = tTasks.length;
-          isSealedToday = dayStatuses[currentDayNumber] === 'sealed';
-        }
-
-        let deadlineText: string | null = null;
-        if (journey.deadlineLabel && journey.deadlineDate) {
-          const left = daysBetween(today, journey.deadlineDate);
-          deadlineText = `${journey.deadlineLabel} · ${Math.max(0, left)} days left`;
-        }
-
-        return {
-          journey,
-          dayNumber: currentDayNumber,
-          progressFraction: progress.progressFraction,
-          currentStreak: streakInfo.currentStreak,
-          bestStreak: streakInfo.bestStreak,
-          glowLevel: streakInfo.glowLevel,
-          todayDoneCount,
-          todayTotalCount,
-          isSealedToday,
-          deadlineText,
-          state,
-        };
       });
   }, [journeys, tasksRecord, completionsRecord, today]);
 

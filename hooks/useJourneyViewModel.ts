@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { daysBetween, isAfterDate } from '../core/dates';
+
 import { journeyProgress, todayTasks } from '../core/progress';
 import { dayStatus } from '../core/status';
 import { computeStreakInfo } from '../core/streak';
@@ -21,38 +21,35 @@ export function useJourneyViewModel(journeyId: string) {
       return null;
     }
 
-    const dayStatuses: Record<number, DayStatus> = {};
-    for (let day = 1; day <= journey.totalDays; day++) {
-      dayStatuses[day] = dayStatus(journey, day, today, tasks, completions);
-    }
-
-    const todayDayNumber = dayNumberFor(journey, today);
-    const streakInfo = computeStreakInfo(dayStatuses, todayDayNumber, journey.totalDays);
-    const progressInfo = journeyProgress(journey, dayStatuses);
-
-    const todayTaskList = todayDayNumber
-      ? todayTasks(todayDayNumber, tasks, completions)
-      : [];
-
-    let deadlineDaysLeft: number | null = null;
-    if (journey.deadlineDate) {
-      if (isAfterDate(journey.deadlineDate, today)) {
-        deadlineDaysLeft = daysBetween(today, journey.deadlineDate);
-      } else {
-        deadlineDaysLeft = 0;
+    try {
+      const dayStatuses: Record<number, DayStatus> = {};
+      for (let day = 1; day <= journey.totalDays; day++) {
+        dayStatuses[day] = dayStatus(journey, day, today, tasks, completions);
       }
-    }
 
-    return {
-      journey,
-      tasks,
-      completions,
-      dayStatuses,
-      streakInfo,
-      progressInfo,
-      todayDayNumber,
-      todayTasksList: todayTaskList,
-      deadlineDaysLeft,
-    };
+      const todayDayNumber = dayNumberFor(journey, today);
+      const streakInfo = computeStreakInfo(dayStatuses, todayDayNumber, journey.totalDays);
+      const progressInfo = journeyProgress(journey, dayStatuses);
+
+      const todayTaskList = todayDayNumber
+        ? todayTasks(todayDayNumber, tasks, completions)
+        : [];
+
+      let deadlineDaysLeft: number | null = null;
+
+      return {
+        journey,
+        tasks,
+        completions,
+        dayStatuses,
+        streakInfo,
+        progressInfo,
+        todayDayNumber,
+        todayTasksList: todayTaskList,
+        deadlineDaysLeft,
+      };
+    } catch {
+      return null;
+    }
   }, [journey, tasks, completions, today]);
 }

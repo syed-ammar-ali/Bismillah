@@ -86,9 +86,9 @@ export function JourneyForm({
     }
     return today;
   });
-  const [deadlineLabel, setDeadlineLabel] = useState(initialJourney?.deadlineLabel ?? '');
-  const [deadlineDate, setDeadlineDate] = useState(initialJourney?.deadlineDate ?? '');
-  const [closingNote, setClosingNote] = useState(initialJourney?.closingNote ?? '');
+  const deadlineLabel = '';
+  const deadlineDate = '';
+  const closingNote = '';
 
   const handleCalendarTypeChange = (newType: CalendarType) => {
     if (isStarted || newType === calendarType) return;
@@ -140,16 +140,7 @@ export function JourneyForm({
     return [{ title: '', kind: 'daily', sortOrder: 0 }];
   });
 
-  const [makeupTasks, setMakeupTasks] = useState<TaskInputItem[]>(() => {
-    const makeup = initialTasks.filter((t) => t.kind === 'makeup');
-    return makeup.map((t) => ({
-      id: t.id,
-      title: t.title,
-      note: t.note,
-      kind: 'makeup',
-      sortOrder: t.sortOrder,
-    }));
-  });
+  const makeupTasks: TaskInputItem[] = [];
 
   const [deleteConfirmationText, setDeleteConfirmationText] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -230,12 +221,7 @@ export function JourneyForm({
     ]);
   };
 
-  const handleAddMakeupTask = () => {
-    setMakeupTasks((prev) => [
-      ...prev,
-      { title: '', kind: 'makeup', sortOrder: prev.length },
-    ]);
-  };
+
 
   const handleMoveDailyTask = (index: number, direction: 'up' | 'down') => {
     setDailyTasks((prev) => {
@@ -255,9 +241,7 @@ export function JourneyForm({
     setDailyTasks((prev) => prev.filter((_, idx) => idx !== index));
   };
 
-  const handleRemoveMakeupTask = (index: number) => {
-    setMakeupTasks((prev) => prev.filter((_, idx) => idx !== index));
-  };
+
 
   const handleSubmit = async () => {
     if (!name.trim()) {
@@ -271,6 +255,8 @@ export function JourneyForm({
       Alert.alert('Invalid Dates', 'End date must be on or after start date.');
       return;
     }
+
+
 
     const validDaily = dailyTasks.filter((t) => t.title.trim().length > 0);
     // If no tasks were entered, provide a clean daily check-in commitment
@@ -487,41 +473,6 @@ export function JourneyForm({
         </View>
       </View>
 
-      {/* 4. Optional Deadline */}
-      <View style={styles.field}>
-        <Text style={styles.label}>Goal / Deadline (Optional)</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Label (e.g. Before Ramadan)"
-          placeholderTextColor={colors.textMuted}
-          value={deadlineLabel}
-          onChangeText={setDeadlineLabel}
-        />
-        <TextInput
-          style={[styles.input, styles.marginTopSm]}
-          placeholder="Deadline Date (YYYY-MM-DD)"
-          placeholderTextColor={colors.textMuted}
-          value={deadlineDate}
-          onChangeText={setDeadlineDate}
-        />
-      </View>
-
-      {/* Optional Closing Note (Edit Mode) */}
-      {initialJourney ? (
-        <View style={styles.field}>
-          <Text style={styles.label}>Closing Note (Optional)</Text>
-          <TextInput
-            style={[styles.input, styles.multilineInput]}
-            placeholder="Reflection upon completing this journey"
-            placeholderTextColor={colors.textMuted}
-            value={closingNote}
-            onChangeText={setClosingNote}
-            multiline
-            numberOfLines={3}
-            textAlignVertical="top"
-          />
-        </View>
-      ) : null}
 
       {/* 5. Daily Tasks */}
       <View style={styles.field}>
@@ -609,56 +560,6 @@ export function JourneyForm({
         ))}
       </View>
 
-      {/* 6. Make-up Tasks */}
-      <View style={styles.field}>
-        <View style={styles.sectionHeaderRow}>
-          <View>
-            <Text style={styles.label}>Make-up Tasks (Optional)</Text>
-            <Text style={styles.subNote}>Available to complete missed gap days</Text>
-          </View>
-          <Pressable
-            onPress={handleAddMakeupTask}
-            style={styles.addMiniButton}
-            accessibilityRole="button"
-            accessibilityLabel="Add make-up task"
-          >
-            <Plus size={16} color={colors.gold} />
-            <Text style={styles.addMiniText}>Add</Text>
-          </Pressable>
-        </View>
-
-        {makeupTasks.map((task, index) => (
-          <View key={`makeup-${index}`} style={styles.taskInputRow}>
-            <View style={styles.taskInputs}>
-              <TextInput
-                style={styles.taskTitleInput}
-                placeholder="e.g. Fast 1 make-up day"
-                placeholderTextColor={colors.textMuted}
-                value={task.title}
-                onChangeText={(text) => {
-                  setMakeupTasks((prev) => {
-                    const copy = [...prev];
-                    const item = copy[index];
-                    if (item) {
-                      copy[index] = { ...item, title: text };
-                    }
-                    return copy;
-                  });
-                }}
-              />
-            </View>
-
-            <Pressable
-              onPress={() => handleRemoveMakeupTask(index)}
-              style={styles.iconBtn}
-              accessibilityRole="button"
-              accessibilityLabel="Remove make-up task"
-            >
-              <Trash2 size={16} color={colors.danger} />
-            </Pressable>
-          </View>
-        ))}
-      </View>
 
       {/* Submit Button */}
       <View style={styles.submitSection}>

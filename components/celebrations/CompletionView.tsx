@@ -8,7 +8,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 import Animated, {
@@ -37,7 +36,7 @@ import { fontFamilies } from '../../theme/typography';
 
 export interface CompletionViewProps {
   journey: Journey;
-  onDone: (closingNote?: string | null) => void;
+  onDone: () => void;
   isOverlay?: boolean;
 }
 
@@ -49,7 +48,7 @@ export function CompletionView({ journey, onDone, isOverlay = false }: Completio
   const tasks = useJourneyStore((s) => s.tasks[journey.id]) ?? EMPTY_ARRAY;
   const completions = useJourneyStore((s) => s.completions[journey.id]) ?? EMPTY_ARRAY;
 
-  const [closingNote, setClosingNote] = useState(journey.closingNote ?? '');
+
   const [submitting, setSubmitting] = useState(false);
 
   const shouldReduceMotion = useReducedMotion();
@@ -118,10 +117,9 @@ export function CompletionView({ journey, onDone, isOverlay = false }: Completio
     if (submitting) return;
     setSubmitting(true);
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    const trimmed = closingNote.trim() || null;
-    await journeyService.markCompletionShown(journey.id, trimmed);
+    await journeyService.markCompletionShown(journey.id, null);
     setSubmitting(false);
-    onDone(trimmed);
+    onDone();
   };
 
   // 12 dots symmetrically around center (radius: 72)
@@ -239,21 +237,6 @@ export function CompletionView({ journey, onDone, isOverlay = false }: Completio
             </GlassCard>
           </View>
 
-          {/* Optional Closing Note Input */}
-          <View style={styles.noteSection}>
-            <Text style={styles.sectionHeader}>PERSONAL REFLECTION (OPTIONAL)</Text>
-            <GlassCard style={styles.noteCard}>
-              <TextInput
-                multiline
-                numberOfLines={3}
-                placeholder="What did you learn or gain from completing this journey?"
-                placeholderTextColor={colors.textMuted}
-                value={closingNote}
-                onChangeText={setClosingNote}
-                style={styles.noteInput}
-              />
-            </GlassCard>
-          </View>
 
           {/* Done Button */}
           <View style={styles.buttonContainer}>
@@ -412,19 +395,6 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilies.body,
     fontSize: 13,
     color: colors.textMuted,
-  },
-  noteSection: {
-    gap: spacing.sm,
-  },
-  noteCard: {
-    padding: spacing.md,
-  },
-  noteInput: {
-    fontFamily: fontFamilies.body,
-    fontSize: 14,
-    color: colors.text,
-    minHeight: 70,
-    textAlignVertical: 'top',
   },
   buttonContainer: {
     marginTop: spacing.sm,

@@ -20,7 +20,7 @@ export interface JourneyCardProps {
   todayDoneCount?: number;
   todayTotalCount?: number;
   isSealedToday?: boolean;
-  deadlineCountdownText?: string | null;
+
   state?: 'upcoming' | 'active' | 'completed';
   onPress?: () => void;
 }
@@ -34,7 +34,7 @@ export const JourneyCard = React.memo(function JourneyCard({
   todayDoneCount,
   todayTotalCount,
   isSealedToday,
-  deadlineCountdownText,
+
   state = 'active',
   onPress,
 }: JourneyCardProps) {
@@ -78,9 +78,7 @@ export const JourneyCard = React.memo(function JourneyCard({
           <Text numberOfLines={1} style={styles.name}>
             {journey.name}
           </Text>
-          {deadlineCountdownText ? (
-            <Text style={styles.deadline}>{deadlineCountdownText}</Text>
-          ) : null}
+
         </View>
 
         <View style={styles.badges}>
@@ -180,13 +178,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.4,
     color: colors.text,
   },
-  deadline: {
-    fontFamily: fontFamilies.body,
-    fontSize: 12,
-    color: colors.goldSoft,
-    marginTop: 2,
-    opacity: 0.75,
-  },
+
   badges: {
     flexDirection: 'row',
     alignItems: 'center',
