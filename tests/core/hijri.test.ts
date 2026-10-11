@@ -1,4 +1,10 @@
-import { fromHijri, getHijriDaysInMonth, HIJRI_MONTH_NAMES, toHijri } from '../../core/hijri';
+import {
+  fromHijri,
+  getHijriDaysInMonth,
+  getHijriMonthGrid,
+  HIJRI_MONTH_NAMES,
+  toHijri,
+} from '../../core/hijri';
 
 describe('hijri', () => {
   it('has 12 Hijri month names', () => {
@@ -6,6 +12,24 @@ describe('hijri', () => {
     expect(HIJRI_MONTH_NAMES[0]).toBe('Muharram');
     expect(HIJRI_MONTH_NAMES[8]).toBe('Ramadan');
     expect(HIJRI_MONTH_NAMES[11]).toBe('Dhu al-Hijjah');
+  });
+
+  describe('getHijriMonthGrid', () => {
+    it('generates a full month grid with correct day count and mappings', () => {
+      const grid = getHijriMonthGrid(1448, 4, 0); // Rabi' al-Thani
+      expect(grid.year).toBe(1448);
+      expect(grid.month).toBe(4);
+      expect(grid.monthName).toBe("Rabi' al-Thani");
+      expect(grid.days).toHaveLength(grid.totalDays);
+      expect(grid.totalDays === 29 || grid.totalDays === 30).toBe(true);
+      expect(grid.firstDayWeekday).toBeGreaterThanOrEqual(0);
+      expect(grid.firstDayWeekday).toBeLessThanOrEqual(6);
+
+      const first = grid.days[0]!;
+      expect(first.day).toBe(1);
+      expect(first.hijriDateString).toBe('1448-04-01');
+      expect(first.gregorianDateString).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    });
   });
 
   describe('daysInMonth', () => {

@@ -1,5 +1,5 @@
 import * as Haptics from 'expo-haptics';
-import { ArrowDown, ArrowUp, Calendar as CalendarIcon, Plus, Trash2 } from 'lucide-react-native';
+import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react-native';
 import React, { useMemo, useState } from 'react';
 import {
   Alert,
@@ -11,7 +11,7 @@ import {
   View,
 } from 'react-native';
 import { Calendar } from 'react-native-calendars';
-import { addDaysToDate, isValidDateString } from '../../core/dates';
+import { addDaysToDate, formatDisplayDateShort, isValidDateString } from '../../core/dates';
 import { fromHijri, toHijri } from '../../core/hijri';
 import { totalDays } from '../../core/timeline';
 import { CalendarType, Journey, Task } from '../../core/types';
@@ -19,6 +19,7 @@ import { useAppStore } from '../../stores/useAppStore';
 import { colors } from '../../theme/colors';
 import { layout, radius, spacing } from '../../theme/spacing';
 import { fontFamilies } from '../../theme/typography';
+import { HijriCalendarGrid } from '../calendar/HijriCalendarGrid';
 import { Button } from '../ui/Button';
 import { Chip } from '../ui/Chip';
 
@@ -145,7 +146,7 @@ export function JourneyForm({
   const [deleteConfirmationText, setDeleteConfirmationText] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const [showCalendar, setShowCalendar] = useState(false);
+  const [showManualInputs, setShowManualInputs] = useState(false);
   const [pickingField, setPickingField] = useState<'start' | 'end'>('start');
 
   // Live calculation of resolved Gregorian dates, Hijri dates and total days
@@ -162,6 +163,8 @@ export function JourneyForm({
         if (sy && sm && sd && ey && em && ed) {
           sDate = fromHijri(sy, sm, sd, hijriAdjustment).gregorianDate;
           eDate = fromHijri(ey, em, ed, hijriAdjustment).gregorianDate;
+          hStart = toHijri(sDate, hijriAdjustment).formatted;
+          hEnd = toHijri(eDate, hijriAdjustment).formatted;
         }
       } else {
         if (isValidDateString(startInput)) {
@@ -191,11 +194,77 @@ export function JourneyForm({
     }
   }, [calendarType, startInput, endInput, hijriAdjustment]);
 
+  const hijriInitialParts = useMemo(() => {
+    try {
+      const parts = startInput.split('-').map(Number);
+      const y = parts[0];
+      const m = parts[1];
+      if (y && m && y > 1400 && m >= 1 && m <= 12) {
+        return { year: y, month: m };
+      }
+    } catch {
+      // fallback
+    }
+    const hToday = toHijri(today, hijriAdjustment);
+    return { year: hToday.year, month: hToday.month };
+  }, [startInput, today, hijriAdjustment]);
+
+  const handleApplyPreset = (days: number) => {
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (computedDays === days) return;
+
+    if (calendarType === 'hijri') {
+      const sDate = resolvedStart && isValidDateString(resolvedStart) ? resolvedStart : today;
+      const newEndGreg = addDaysToDate(sDate, Math.max(0, days - 1));
+      const hEnd = toHijri(newEndGreg, hijriAdjustment);
+      const pad = (n: number) => n.toString().padStart(2, '0');
+      setEndInput(`${hEnd.year}-${pad(hEnd.month)}-${pad(hEnd.day)}`);
+    } else {
+      const sDate = isValidDateString(startInput) ? startInput : today;
+      const newEnd = addDaysToDate(sDate, Math.max(0, days - 1));
+      setEndInput(newEnd);
+    }
+  };
+
+  const handleGregorianSelect = (selectedDate: string) => {
+    void Haptics.selectionAsync();
+    if (pickingField === 'start') {
+      setStartInput(selectedDate);
+      if (endInput < selectedDate) {
+        setEndInput(selectedDate);
+      }
+      setPickingField('end');
+    } else {
+      if (selectedDate < startInput) {
+        setStartInput(selectedDate);
+      } else {
+        setEndInput(selectedDate);
+      }
+    }
+  };
+
+  const handleHijriSelect = (hijriDateString: string) => {
+    void Haptics.selectionAsync();
+    if (pickingField === 'start') {
+      setStartInput(hijriDateString);
+      if (endInput < hijriDateString) {
+        setEndInput(hijriDateString);
+      }
+      setPickingField('end');
+    } else {
+      if (hijriDateString < startInput) {
+        setStartInput(hijriDateString);
+      } else {
+        setEndInput(hijriDateString);
+      }
+    }
+  };
+
   const calendarMarkedDates = useMemo(() => {
     const marks: Record<string, { startingDay?: boolean; endingDay?: boolean; color: string; textColor: string }> = {};
     if (!resolvedStart || !resolvedEnd || computedDays <= 0 || computedDays > 120) {
       if (isValidDateString(resolvedStart)) {
-        marks[resolvedStart] = { startingDay: true, endingDay: true, color: colors.gold, textColor: '#000000' };
+        marks[resolvedStart] = { startingDay: true, endingDay: true, color: colors.gold, textColor: '#08090E' };
       }
       return marks;
     }
@@ -206,8 +275,8 @@ export function JourneyForm({
       marks[curr] = {
         startingDay: isStart,
         endingDay: isEnd,
-        color: isStart || isEnd ? colors.gold : 'rgba(255, 255, 255, 0.15)',
-        textColor: isStart || isEnd ? '#000000' : '#FFFFFF',
+        color: isStart || isEnd ? colors.gold : colors.goldDim,
+        textColor: isStart || isEnd ? '#08090E' : colors.goldSoft,
       };
       curr = addDaysToDate(curr, 1);
     }
@@ -295,7 +364,7 @@ export function JourneyForm({
     <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
       {/* 1. Journey Name */}
       <View style={styles.field}>
-        <Text style={styles.label}>Journey Name *</Text>
+        <Text style={styles.label}>Journey Name</Text>
         <TextInput
           style={styles.input}
           placeholder="e.g. 40 Days of Fajr"
@@ -326,11 +395,9 @@ export function JourneyForm({
         ) : null}
       </View>
 
-      {/* 3. Dates */}
+      {/* 3. Timeline & Range */}
       <View style={styles.field}>
-        <Text style={styles.label}>
-          {calendarType === 'hijri' ? 'Hijri Dates (YYYY-MM-DD)' : 'Gregorian Dates (YYYY-MM-DD)'} *
-        </Text>
+        <Text style={styles.label}>Timeline & Range</Text>
         {isStarted ? (
           <View style={styles.lockedBox}>
             <Text style={styles.lockedText}>
@@ -342,102 +409,140 @@ export function JourneyForm({
           </View>
         ) : (
           <>
-            <View style={styles.dateInputsRow}>
-              <View style={styles.flexOne}>
-                <Text style={styles.subLabel}>Start Date</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="YYYY-MM-DD"
-                  placeholderTextColor={colors.textMuted}
-                  value={startInput}
-                  onChangeText={setStartInput}
-                />
-              </View>
-              <View style={styles.flexOne}>
-                <Text style={styles.subLabel}>End Date</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="YYYY-MM-DD"
-                  placeholderTextColor={colors.textMuted}
-                  value={endInput}
-                  onChangeText={setEndInput}
-                />
+            {/* Interactive Date Range Hero Cards */}
+            <View style={styles.dateHeroRow}>
+              <Pressable
+                onPress={() => {
+                  void Haptics.selectionAsync();
+                  setPickingField('start');
+                }}
+                style={[
+                  styles.dateCard,
+                  pickingField === 'start' && styles.dateCardActive,
+                ]}
+                accessibilityRole="button"
+                accessibilityLabel="Set start date"
+              >
+                <Text style={styles.dateCardLabel}>Start Date</Text>
+                <Text numberOfLines={1} style={styles.dateCardPrimary}>
+                  {calendarType === 'hijri'
+                    ? hijriStartFormatted || startInput
+                    : isValidDateString(startInput)
+                      ? formatDisplayDateShort(startInput)
+                      : startInput}
+                </Text>
+                <Text numberOfLines={1} style={styles.dateCardSecondary}>
+                  {calendarType === 'hijri'
+                    ? resolvedStart && isValidDateString(resolvedStart)
+                      ? formatDisplayDateShort(resolvedStart)
+                      : ''
+                    : hijriStartFormatted || ''}
+                </Text>
+              </Pressable>
+
+              <Pressable
+                onPress={() => {
+                  void Haptics.selectionAsync();
+                  setPickingField('end');
+                }}
+                style={[
+                  styles.dateCard,
+                  pickingField === 'end' && styles.dateCardActive,
+                ]}
+                accessibilityRole="button"
+                accessibilityLabel="Set end date"
+              >
+                <Text style={styles.dateCardLabel}>End Date</Text>
+                <Text numberOfLines={1} style={styles.dateCardPrimary}>
+                  {calendarType === 'hijri'
+                    ? hijriEndFormatted || endInput
+                    : isValidDateString(endInput)
+                      ? formatDisplayDateShort(endInput)
+                      : endInput}
+                </Text>
+                <Text numberOfLines={1} style={styles.dateCardSecondary}>
+                  {calendarType === 'hijri'
+                    ? resolvedEnd && isValidDateString(resolvedEnd)
+                      ? formatDisplayDateShort(resolvedEnd)
+                      : ''
+                    : hijriEndFormatted || ''}
+                </Text>
+              </Pressable>
+            </View>
+
+            {/* Duration Indicator */}
+            <View style={styles.durationBadgeRow}>
+              <View style={styles.durationBadge}>
+                <Text style={styles.durationBadgeText}>
+                  ✦ {computedDays > 0 ? `${computedDays} Days Duration` : 'Invalid Range'}
+                </Text>
               </View>
             </View>
 
-            {/* Calendar toggle button */}
-            <Pressable
-              onPress={() => setShowCalendar((prev) => !prev)}
-              style={styles.calendarToggleBtn}
-              accessibilityRole="button"
-              accessibilityLabel="Toggle calendar picker"
-            >
-              <CalendarIcon size={16} color={colors.gold} />
-              <Text style={styles.calendarToggleText}>
-                {showCalendar ? 'Hide Calendar' : 'Pick / View on Calendar'}
-              </Text>
-            </Pressable>
-
-            {/* Interactive visual calendar picker */}
-            {showCalendar ? (
-              <View style={styles.calendarContainer}>
-                <View style={styles.calendarPickingHintRow}>
-                  <Text style={styles.calendarPickingHint}>
-                    Tap date to set:
+            {/* Quick Duration Presets */}
+            <View style={styles.presetsRow}>
+              <Text style={styles.presetsLabel}>Duration:</Text>
+              {[7, 21, 30, 40].map((days) => (
+                <Pressable
+                  key={days}
+                  onPress={() => handleApplyPreset(days)}
+                  style={[
+                    styles.presetPill,
+                    computedDays === days && styles.presetPillActive,
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Set duration to ${days} days`}
+                >
+                  <Text
+                    style={[
+                      styles.presetPillText,
+                      computedDays === days && styles.presetPillTextActive,
+                    ]}
+                  >
+                    {days}d
                   </Text>
-                  <View style={styles.fieldSelectorChips}>
-                    <Pressable
-                      onPress={() => {
-                        void Haptics.selectionAsync();
-                        setPickingField('start');
-                      }}
-                      style={[styles.fieldChip, pickingField === 'start' && styles.fieldChipActive]}
-                    >
-                      <Text style={[styles.fieldChipText, pickingField === 'start' && styles.fieldChipTextActive]}>
-                        Start Date
-                      </Text>
-                    </Pressable>
-                    <Pressable
-                      onPress={() => {
-                        void Haptics.selectionAsync();
-                        setPickingField('end');
-                      }}
-                      style={[styles.fieldChip, pickingField === 'end' && styles.fieldChipActive]}
-                    >
-                      <Text style={[styles.fieldChipText, pickingField === 'end' && styles.fieldChipTextActive]}>
-                        End Date
-                      </Text>
-                    </Pressable>
-                  </View>
-                </View>
+                </Pressable>
+              ))}
+              {calendarType === 'hijri' ? (
+                <Pressable
+                  onPress={() => handleApplyPreset(30)}
+                  style={[
+                    styles.presetPill,
+                    computedDays === 30 && styles.presetPillActive,
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityLabel="Set duration to Ramadan (30 days)"
+                >
+                  <Text
+                    style={[
+                      styles.presetPillText,
+                      computedDays === 30 && styles.presetPillTextActive,
+                    ]}
+                  >
+                    Ramadan
+                  </Text>
+                </Pressable>
+              ) : null}
+            </View>
 
+            {/* Native Dual-Mode Calendar Grid */}
+            {calendarType === 'hijri' ? (
+              <HijriCalendarGrid
+                initialYear={hijriInitialParts.year}
+                initialMonth={hijriInitialParts.month}
+                hijriAdjustment={hijriAdjustment}
+                startDate={startInput}
+                endDate={endInput}
+                onSelectDate={handleHijriSelect}
+              />
+            ) : (
+              <View style={styles.calendarContainer}>
                 <Calendar
                   current={resolvedStart && isValidDateString(resolvedStart) ? resolvedStart : today}
                   enableSwipeMonths
                   markingType="period"
                   markedDates={calendarMarkedDates}
-                  onDayPress={(day: { dateString: string }) => {
-                    void Haptics.selectionAsync();
-                    const selected = day.dateString;
-                    if (calendarType === 'hijri') {
-                      const h = toHijri(selected, hijriAdjustment);
-                      const pad = (n: number) => n.toString().padStart(2, '0');
-                      const formatted = `${h.year}-${pad(h.month)}-${pad(h.day)}`;
-                      if (pickingField === 'start') {
-                        setStartInput(formatted);
-                        setPickingField('end');
-                      } else {
-                        setEndInput(formatted);
-                      }
-                    } else {
-                      if (pickingField === 'start') {
-                        setStartInput(selected);
-                        setPickingField('end');
-                      } else {
-                        setEndInput(selected);
-                      }
-                    }
-                  }}
+                  onDayPress={(day: { dateString: string }) => handleGregorianSelect(day.dateString)}
                   theme={{
                     backgroundColor: colors.surfaceRaised,
                     calendarBackground: colors.surfaceRaised,
@@ -451,33 +556,52 @@ export function JourneyForm({
                   }}
                 />
               </View>
+            )}
+
+            {/* Manual text inputs toggle (convenience) */}
+            <Pressable
+              onPress={() => setShowManualInputs((prev) => !prev)}
+              style={styles.manualEditToggle}
+              accessibilityRole="button"
+              accessibilityLabel="Toggle manual date input"
+            >
+              <Text style={styles.manualEditText}>
+                {showManualInputs ? 'Hide manual date inputs' : 'Edit dates manually (YYYY-MM-DD)'}
+              </Text>
+            </Pressable>
+
+            {showManualInputs ? (
+              <View style={styles.dateInputsRow}>
+                <View style={styles.flexOne}>
+                  <Text style={styles.subLabel}>Start Date</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="YYYY-MM-DD"
+                    placeholderTextColor={colors.textMuted}
+                    value={startInput}
+                    onChangeText={setStartInput}
+                  />
+                </View>
+                <View style={styles.flexOne}>
+                  <Text style={styles.subLabel}>End Date</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="YYYY-MM-DD"
+                    placeholderTextColor={colors.textMuted}
+                    value={endInput}
+                    onChangeText={setEndInput}
+                  />
+                </View>
+              </View>
             ) : null}
           </>
         )}
-
-        {/* Live Preview */}
-        <View style={styles.previewBox}>
-          {calendarType === 'hijri' && computedDays > 0 ? (
-            <Text style={styles.previewText}>
-              Resolves to Gregorian: {resolvedStart} → {resolvedEnd}
-            </Text>
-          ) : null}
-          {calendarType === 'gregorian' && computedDays > 0 && hijriStartFormatted && hijriEndFormatted ? (
-            <Text style={styles.previewText}>
-              Resolves to Hijri: {hijriStartFormatted} → {hijriEndFormatted}
-            </Text>
-          ) : null}
-          <Text style={styles.totalDaysHighlight}>
-            {computedDays > 0 ? `${computedDays} days total` : 'Invalid date range'}
-          </Text>
-        </View>
       </View>
 
-
-      {/* 5. Daily Tasks */}
+      {/* 4. Daily Tasks */}
       <View style={styles.field}>
         <View style={styles.sectionHeaderRow}>
-          <Text style={styles.label}>Daily Tasks *</Text>
+          <Text style={styles.label}>Daily Tasks</Text>
           <Pressable
             onPress={handleAddDailyTask}
             style={styles.addMiniButton}
@@ -679,23 +803,91 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-  calendarToggleBtn: {
+  dateHeroRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    alignSelf: 'flex-start',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: radius.full,
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    gap: spacing.sm,
+    alignItems: 'stretch',
+  },
+  dateCard: {
+    flex: 1,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
+    borderColor: colors.border,
+    padding: spacing.md,
+    gap: 3,
+  },
+  dateCardActive: {
+    borderColor: colors.gold,
+    backgroundColor: 'rgba(229, 184, 105, 0.08)',
+  },
+  dateCardLabel: {
+    fontSize: 10,
+    fontFamily: fontFamilies.labelStrong,
+    color: colors.textMuted,
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+  },
+  dateCardPrimary: {
+    fontFamily: fontFamilies.heading,
+    fontSize: 15,
+    color: colors.text,
+  },
+  dateCardSecondary: {
+    fontSize: 11,
+    color: colors.goldSoft,
     marginTop: 2,
   },
-  calendarToggleText: {
+  durationBadgeRow: {
+    alignItems: 'center',
+    marginVertical: 4,
+  },
+  durationBadge: {
+    paddingVertical: 5,
+    paddingHorizontal: 14,
+    borderRadius: radius.full,
+    backgroundColor: colors.goldDim,
+    borderWidth: 1,
+    borderColor: 'rgba(229, 184, 105, 0.3)',
+  },
+  durationBadgeText: {
     fontFamily: fontFamilies.labelStrong,
     fontSize: 12,
     color: colors.gold,
+  },
+  presetsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    alignItems: 'center',
+    marginTop: 2,
+    marginBottom: 4,
+  },
+  presetsLabel: {
+    fontSize: 12,
+    color: colors.textMuted,
+    marginRight: 4,
+  },
+  presetPill: {
+    paddingVertical: 5,
+    paddingHorizontal: 12,
+    borderRadius: radius.full,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  presetPillActive: {
+    backgroundColor: colors.gold,
+    borderColor: colors.gold,
+  },
+  presetPillText: {
+    fontFamily: fontFamilies.labelStrong,
+    fontSize: 11,
+    color: colors.textSecondary,
+  },
+  presetPillTextActive: {
+    color: '#08090E',
+    fontWeight: '700',
   },
   calendarContainer: {
     backgroundColor: colors.surfaceRaised,
@@ -707,49 +899,15 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     marginTop: 4,
   },
-  calendarPickingHintRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.xs,
-    paddingTop: 2,
+  manualEditToggle: {
+    alignSelf: 'flex-start',
+    marginTop: 4,
+    paddingVertical: 4,
   },
-  calendarPickingHint: {
-    fontSize: 12,
-    fontFamily: fontFamilies.labelStrong,
-    color: colors.textMuted,
-  },
-  fieldSelectorChips: {
-    flexDirection: 'row',
-    gap: 6,
-  },
-  fieldChip: {
-    paddingVertical: 3,
-    paddingHorizontal: 8,
-    borderRadius: radius.sm,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.10)',
-  },
-  fieldChipActive: {
-    backgroundColor: colors.gold,
-  },
-  fieldChipText: {
-    fontSize: 11,
-    fontFamily: fontFamilies.labelStrong,
-    color: colors.textMuted,
-  },
-  fieldChipTextActive: {
-    color: '#060709',
-  },
-  previewText: {
+  manualEditText: {
     fontSize: 12,
     color: colors.textMuted,
-  },
-  totalDaysHighlight: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: colors.gold,
+    textDecorationLine: 'underline',
   },
   lockedBox: {
     backgroundColor: colors.surfaceRaised,

@@ -1,0 +1,1613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bismillah · Design System & Component Library</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Backgrounds */
+      --bg: #08090E;
+      --bg-elevated: #0E121C;
+      --bg-subtle: #141A26;
+
+      /* Glass surfaces */
+      --glass: rgba(255, 255, 255, 0.045);
+      --glass-strong: rgba(255, 255, 255, 0.075);
+      --glass-border: rgba(255, 255, 255, 0.09);
+      --glass-border-gold: rgba(229, 184, 105, 0.22);
+      --glass-highlight: rgba(255, 255, 255, 0.12);
+
+      /* Primary Sacred Gold / Amber */
+      --gold: #E5B869;
+      --gold-soft: #F5DCA3;
+      --gold-dim: rgba(229, 184, 105, 0.22);
+      --gold-glow: rgba(229, 184, 105, 0.12);
+
+      /* Spiritual Jewel Accents */
+      --emerald: #10B981;
+      --emerald-dim: rgba(16, 185, 129, 0.18);
+      --azure: #38BDF8;
+      --azure-dim: rgba(56, 189, 248, 0.18);
+      --amethyst: #A78BFA;
+      --amethyst-dim: rgba(167, 139, 250, 0.18);
+      --copper: #F97316;
+      --copper-dim: rgba(249, 115, 22, 0.18);
+      --rose: #F472B6;
+
+      /* Typography */
+      --text: #F8FAFC;
+      --text-secondary: #94A3B8;
+      --text-muted: rgba(255, 255, 255, 0.38);
+
+      /* Semantic */
+      --gap: rgba(148, 163, 184, 0.50);
+      --danger: #F87171;
+      --success: #10B981;
+
+      /* Typography */
+      --font-display: 'Outfit', sans-serif;
+      --font-body: 'Inter', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      line-height: 1.5;
+      padding-bottom: 120px;
+      overflow-x: hidden;
+    }
+
+    /* Ambient Nocturnal Backdrop */
+    .ambient-sky {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+      background:
+        radial-gradient(circle at 15% 10%, rgba(229, 184, 105, 0.05) 0%, transparent 45%),
+        radial-gradient(circle at 85% 20%, rgba(56, 189, 248, 0.04) 0%, transparent 40%),
+        radial-gradient(circle at 50% 80%, rgba(16, 185, 129, 0.03) 0%, transparent 50%);
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+
+    /* Header & Navigation */
+    header {
+      margin-bottom: 48px;
+    }
+
+    .badge-top {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(229, 184, 105, 0.1);
+      border: 1px solid var(--glass-border-gold);
+      color: var(--gold);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-family: var(--font-display);
+      font-size: 42px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      color: var(--text);
+      line-height: 1.15;
+      margin-bottom: 12px;
+    }
+
+    h1 span {
+      color: var(--gold);
+    }
+
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 17px;
+      max-width: 720px;
+      line-height: 1.6;
+    }
+
+    /* Navigation Pills */
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      margin-top: 32px;
+      flex-wrap: wrap;
+      background: var(--glass);
+      padding: 6px;
+      border-radius: 16px;
+      border: 1px solid var(--glass-border);
+      width: fit-content;
+    }
+
+    .nav-tab {
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .nav-tab:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .nav-tab.active {
+      background: var(--gold);
+      color: #060709;
+    }
+
+    /* Section Styles */
+    section {
+      margin-top: 64px;
+      scroll-margin-top: 40px;
+    }
+
+    .section-header {
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--glass-border);
+      padding-bottom: 16px;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-desc {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    /* Grid of Cards */
+    .token-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .token-card {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 18px;
+      padding: 18px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .token-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.18);
+      background: var(--glass-strong);
+    }
+
+    .swatch {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .token-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .token-name {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .token-role {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .token-val {
+      font-family: monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Comparison Box */
+    .comparison-box {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+
+    @media (max-width: 768px) {
+      .comparison-box {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .comparison-card {
+      padding: 24px;
+      border-radius: 20px;
+      border: 1px solid var(--glass-border);
+    }
+
+    .comp-old {
+      background: #000000;
+      border-color: #222;
+    }
+
+    .comp-new {
+      background: linear-gradient(145deg, #0E121C 0%, #08090E 100%);
+      border-color: var(--glass-border-gold);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(229, 184, 105, 0.15);
+    }
+
+    .comp-tag {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    /* Component Sandbox Area */
+    .sandbox-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 24px;
+    }
+
+    .preview-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Buttons */
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn {
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 12px 24px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-primary {
+      background: var(--gold);
+      color: #060709;
+      box-shadow: 0 4px 16px rgba(229, 184, 105, 0.25);
+    }
+
+    .btn-primary:hover {
+      background: #edd296;
+      box-shadow: 0 6px 20px rgba(229, 184, 105, 0.35);
+    }
+
+    .btn-secondary {
+      background: var(--glass);
+      color: var(--text);
+      border: 1px solid var(--glass-border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--glass-strong);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--gold);
+    }
+
+    .btn-ghost:hover {
+      background: rgba(229, 184, 105, 0.08);
+    }
+
+    .btn-danger {
+      background: rgba(248, 113, 113, 0.12);
+      color: var(--danger);
+      border: 1px solid rgba(248, 113, 113, 0.25);
+    }
+
+    /* Chips */
+    .chip-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      padding: 7px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      background: var(--glass);
+      color: var(--text-secondary);
+      border: 1px solid var(--glass-border);
+      transition: all 0.2s ease;
+    }
+
+    .chip.selected {
+      background: var(--gold);
+      color: #060709;
+      font-weight: 600;
+      border-color: var(--gold);
+    }
+
+    /* Task Card Item */
+    .task-card {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .task-card:hover {
+      background: var(--glass-strong);
+    }
+
+    .task-card.completed {
+      background: rgba(255, 255, 255, 0.02);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .task-checkbox {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255, 255, 255, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+    }
+
+    .task-card.completed .task-checkbox {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #060709;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .task-content {
+      flex: 1;
+    }
+
+    .task-title {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text);
+      transition: all 0.2s ease;
+    }
+
+    .task-card.completed .task-title {
+      color: var(--text-muted);
+    }
+
+    .task-note {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .task-strip {
+      position: absolute;
+      right: 0;
+      top: 14px;
+      bottom: 14px;
+      width: 3px;
+      border-radius: 2px 0 0 2px;
+      background: var(--gold);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .task-card.completed .task-strip {
+      opacity: 0.8;
+    }
+
+    /* Day Circles */
+    .circles-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .circle-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .circle-item span {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .day-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .day-circle.sealed {
+      background: var(--gold);
+      color: #060709;
+      box-shadow: 0 2px 10px rgba(229, 184, 105, 0.3);
+    }
+
+    .day-circle.made-up {
+      background: var(--gold-dim);
+      border: 1.5px solid var(--gold);
+      color: var(--gold);
+    }
+
+    .day-circle.today {
+      border: 2px solid var(--gold);
+      color: var(--gold);
+      background: rgba(229, 184, 105, 0.12);
+      animation: pulseToday 2s infinite ease-in-out;
+    }
+
+    .day-circle.gap {
+      border: 1px solid var(--gap);
+      color: var(--gap);
+      background: transparent;
+    }
+
+    .day-circle.future {
+      border: 1px solid var(--glass-border);
+      color: var(--text-muted);
+      background: transparent;
+    }
+
+    @keyframes pulseToday {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(229, 184, 105, 0.4); }
+      50% { transform: scale(1.06); box-shadow: 0 0 0 8px rgba(229, 184, 105, 0); }
+    }
+
+    /* Streak Badges */
+    .streaks-row {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .streak-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--gold);
+      background: var(--glass);
+      border: 1px solid var(--glass-border-gold);
+      position: relative;
+    }
+
+    .streak-badge.level-1 {
+      box-shadow: 0 0 16px rgba(229, 184, 105, 0.25);
+    }
+
+    .streak-badge.level-3 {
+      background: rgba(229, 184, 105, 0.12);
+      border-color: var(--gold);
+      box-shadow: 0 0 24px rgba(229, 184, 105, 0.45);
+      animation: breathingGlow 3s infinite ease-in-out;
+    }
+
+    @keyframes breathingGlow {
+      0%, 100% { box-shadow: 0 0 16px rgba(229, 184, 105, 0.3); }
+      50% { box-shadow: 0 0 32px rgba(229, 184, 105, 0.6); }
+    }
+
+    /* Journey Bento Card Preview */
+    .journey-bento {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .journey-bento-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .journey-name {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .journey-tag {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-muted);
+    }
+
+    .journey-bento-body {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    /* SVG Progress Ring */
+    .ring-wrapper {
+      position: relative;
+      width: 58px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ring-svg {
+      transform: rotate(-90deg);
+    }
+
+    .ring-bg {
+      stroke: rgba(255, 255, 255, 0.08);
+    }
+
+    .ring-fill {
+      stroke: var(--gold);
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.6s ease;
+    }
+
+    .ring-text {
+      position: absolute;
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gold-soft);
+    }
+
+    .journey-stats {
+      flex: 1;
+    }
+
+    .journey-day {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .journey-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-top: 6px;
+      background: var(--emerald-dim);
+      color: var(--emerald);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+    }
+
+    /* ══════════════════════════════════════════════════════════════════════════
+       REDESIGNED JOURNEY CREATION FORM & DUAL CALENDAR DEMO
+       ══════════════════════════════════════════════════════════════════════════ */
+    .interactive-demo-container {
+      background: var(--bg-elevated);
+      border: 1px solid var(--glass-border-gold);
+      border-radius: 28px;
+      padding: 36px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+    }
+
+    .form-group {
+      margin-bottom: 28px;
+    }
+
+    .form-label {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.2px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .form-input {
+      width: 100%;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 14px;
+      padding: 14px 18px;
+      color: var(--text);
+      font-size: 16px;
+      font-family: var(--font-body);
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .form-input:focus {
+      border-color: var(--gold);
+      background: var(--glass-strong);
+      box-shadow: 0 0 0 3px var(--gold-glow);
+    }
+
+    /* Date Hero Range Cards */
+    .date-hero-grid {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 640px) {
+      .date-hero-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .date-card {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 18px;
+      padding: 18px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .date-card:hover {
+      background: var(--glass-strong);
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    .date-card.active-picker {
+      border-color: var(--gold);
+      background: rgba(229, 184, 105, 0.08);
+      box-shadow: 0 0 0 2px var(--gold-glow);
+    }
+
+    .date-card-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .date-card-primary {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .date-card-secondary {
+      font-size: 12px;
+      color: var(--gold-soft);
+      margin-top: 2px;
+    }
+
+    .duration-indicator {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 18px;
+      border-radius: 999px;
+      background: var(--gold-dim);
+      border: 1px solid var(--glass-border-gold);
+      color: var(--gold);
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    /* Presets Row */
+    .presets-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .presets-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-right: 4px;
+    }
+
+    .preset-pill {
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      color: var(--text-secondary);
+      transition: all 0.2s ease;
+    }
+
+    .preset-pill:hover {
+      background: var(--glass-strong);
+      color: var(--text);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .preset-pill.active {
+      background: var(--gold);
+      color: #060709;
+      border-color: var(--gold);
+    }
+
+    /* Visual Dual Calendar Grid */
+    .calendar-container {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 22px;
+      padding: 24px;
+      margin-bottom: 28px;
+    }
+
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .calendar-month-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    .calendar-month-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .cal-nav-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--glass-strong);
+      border: 1px solid var(--glass-border);
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      transition: all 0.2s ease;
+    }
+
+    .cal-nav-btn:hover {
+      background: rgba(229, 184, 105, 0.2);
+      border-color: var(--gold);
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      text-align: center;
+    }
+
+    .weekday-header {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      padding: 8px 0;
+      text-transform: uppercase;
+    }
+
+    .cal-day-cell {
+      height: 52px;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      background: transparent;
+      border: 1px solid transparent;
+      transition: all 0.15s ease;
+    }
+
+    .cal-day-cell:hover:not(.empty) {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .cal-day-cell.empty {
+      cursor: default;
+    }
+
+    .cal-day-primary {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .cal-day-sub {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+
+    /* Range Selection Styling */
+    .cal-day-cell.in-range {
+      background: var(--gold-dim);
+      border-color: rgba(229, 184, 105, 0.3);
+    }
+
+    .cal-day-cell.in-range .cal-day-primary {
+      color: var(--gold-soft);
+    }
+
+    .cal-day-cell.start-day,
+    .cal-day-cell.end-day {
+      background: var(--gold);
+      border-color: var(--gold);
+      box-shadow: 0 4px 12px rgba(229, 184, 105, 0.35);
+    }
+
+    .cal-day-cell.start-day .cal-day-primary,
+    .cal-day-cell.end-day .cal-day-primary {
+      color: #060709;
+      font-weight: 800;
+    }
+
+    .cal-day-cell.start-day .cal-day-sub,
+    .cal-day-cell.end-day .cal-day-sub {
+      color: rgba(6, 7, 9, 0.7);
+      font-weight: 600;
+    }
+
+    /* Tasks Section */
+    .task-manager {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .task-input-item {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 14px;
+      padding: 10px 14px;
+    }
+
+    .task-input-field {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-size: 14px;
+      font-family: var(--font-body);
+      outline: none;
+    }
+
+    .task-icon-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .task-icon-btn:hover {
+      color: var(--danger);
+      background: rgba(248, 113, 113, 0.1);
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: var(--gold);
+      color: #060709;
+      padding: 12px 24px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 13px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 9999;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient-sky"></div>
+
+  <div class="container">
+    <header>
+      <div class="badge-top">✦ Bismillah Design System Preview</div>
+      <h1>Spiritual Nocturnal Aesthetics & <span>Design System</span></h1>
+      <p class="subtitle">
+        A dark mode that respects OLED depth without flat monochrome monotony. Featuring sacred gold, emerald, celestial azure, amethyst, and a redesigned dual-mode Hijri/Gregorian range picker.
+      </p>
+
+      <nav class="nav-tabs">
+        <a href="#palette" class="nav-tab active">🎨 Color Tokens</a>
+        <a href="#components" class="nav-tab">🧩 Components Showcase</a>
+        <a href="#calendar-ux" class="nav-tab">🗓️ Redesigned Calendar UX</a>
+        <a href="#form-demo" class="nav-tab">📋 Clean Form Demo</a>
+      </nav>
+    </header>
+
+    <!-- SECTION 1: COMPARISON & COLOR TOKENS -->
+    <section id="palette">
+      <div class="section-header">
+        <h2 class="section-title">Color System & Dark Mode Aesthetics</h2>
+        <p class="section-desc">Tap any token card to copy its variable name. Designed for spiritual reverence and optimal OLED contrast.</p>
+      </div>
+
+      <!-- Before / After Visual Comparison -->
+      <div class="comparison-box">
+        <div class="comparison-card comp-old">
+          <div class="comp-tag" style="color: #888;">Previous Monotonous Monochrome</div>
+          <div style="font-size: 14px; color: #aaa; margin-bottom: 14px;">Pure #000000 black + stark white #FFFFFF. Flat, sterile, lacking sacred warmth.</div>
+          <div style="display: flex; gap: 8px;">
+            <div style="width: 36px; height: 36px; border-radius: 8px; background: #000; border: 1px solid #333;"></div>
+            <div style="width: 36px; height: 36px; border-radius: 8px; background: #FFF;"></div>
+            <div style="width: 36px; height: 36px; border-radius: 8px; background: #A3A3A3;"></div>
+            <div style="width: 36px; height: 36px; border-radius: 8px; background: #525252;"></div>
+          </div>
+        </div>
+
+        <div class="comparison-card comp-new">
+          <div class="comp-tag" style="color: var(--gold);">✦ New Nocturnal Spiritual Palette</div>
+          <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 14px;">Deep obsidian ink base + sacred gold + luminous jewel accents (emerald, azure, amethyst).</div>
+          <div style="display: flex; gap: 8px;">
+            <div style="width: 36px; height: 36px; border-radius: 8px; background: #08090E; border: 1px solid #222;" title="Obsidian Base"></div>
+            <div style="width: 36px; height: 36px; border-radius: 8px; background: #E5B869;" title="Sacred Gold"></div>
+            <div style="width: 36px; height: 36px; border-radius: 8px; background: #10B981;" title="Emerald Green"></div>
+            <div style="width: 36px; height: 36px; border-radius: 8px; background: #38BDF8;" title="Celestial Azure"></div>
+            <div style="width: 36px; height: 36px; border-radius: 8px; background: #A78BFA;" title="Royal Amethyst"></div>
+            <div style="width: 36px; height: 36px; border-radius: 8px; background: #F97316;" title="Warm Terracotta"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Token Grids -->
+      <h3 style="font-size: 16px; color: var(--gold); margin: 24px 0 12px; font-family: var(--font-display);">Primary Sacred Accents</h3>
+      <div class="token-grid">
+        <div class="token-card" onclick="copyToken('colors.gold')">
+          <div class="swatch" style="background: var(--gold);"></div>
+          <div class="token-info">
+            <div class="token-name">colors.gold</div>
+            <div class="token-role">Sacred Warm Gold (Primary Accent)</div>
+            <div class="token-val">#E5B869</div>
+          </div>
+        </div>
+        <div class="token-card" onclick="copyToken('colors.goldSoft')">
+          <div class="swatch" style="background: var(--gold-soft);"></div>
+          <div class="token-info">
+            <div class="token-name">colors.goldSoft</div>
+            <div class="token-role">Champagne Highlights & Glow</div>
+            <div class="token-val">#F5DCA3</div>
+          </div>
+        </div>
+        <div class="token-card" onclick="copyToken('colors.goldDim')">
+          <div class="swatch" style="background: var(--gold-dim);"></div>
+          <div class="token-info">
+            <div class="token-name">colors.goldDim</div>
+            <div class="token-role">Translucent Gold Fill</div>
+            <div class="token-val">rgba(229, 184, 105, 0.22)</div>
+          </div>
+        </div>
+        <div class="token-card" onclick="copyToken('colors.goldGlow')">
+          <div class="swatch" style="background: var(--gold-glow);"></div>
+          <div class="token-info">
+            <div class="token-name">colors.goldGlow</div>
+            <div class="token-role">Luminous Ambient Bloom</div>
+            <div class="token-val">rgba(229, 184, 105, 0.12)</div>
+          </div>
+        </div>
+      </div>
+
+      <h3 style="font-size: 16px; color: var(--emerald); margin: 32px 0 12px; font-family: var(--font-display);">Spiritual Jewel & Semantic Accents</h3>
+      <div class="token-grid">
+        <div class="token-card" onclick="copyToken('colors.emerald')">
+          <div class="swatch" style="background: var(--emerald);"></div>
+          <div class="token-info">
+            <div class="token-name">colors.emerald</div>
+            <div class="token-role">Sacred Emerald (Completion & Peace)</div>
+            <div class="token-val">#10B981</div>
+          </div>
+        </div>
+        <div class="token-card" onclick="copyToken('colors.azure')">
+          <div class="swatch" style="background: var(--azure);"></div>
+          <div class="token-info">
+            <div class="token-name">colors.azure</div>
+            <div class="token-role">Celestial Azure (Night Sky & Calendar)</div>
+            <div class="token-val">#38BDF8</div>
+          </div>
+        </div>
+        <div class="token-card" onclick="copyToken('colors.amethyst')">
+          <div class="swatch" style="background: var(--amethyst);"></div>
+          <div class="token-info">
+            <div class="token-name">colors.amethyst</div>
+            <div class="token-role">Royal Amethyst (Tahajjud & Elevation)</div>
+            <div class="token-val">#A78BFA</div>
+          </div>
+        </div>
+        <div class="token-card" onclick="copyToken('colors.copper')">
+          <div class="swatch" style="background: var(--copper);"></div>
+          <div class="token-info">
+            <div class="token-name">colors.copper</div>
+            <div class="token-role">Terracotta (Streak Momentum)</div>
+            <div class="token-val">#F97316</div>
+          </div>
+        </div>
+        <div class="token-card" onclick="copyToken('colors.gap')">
+          <div class="swatch" style="background: var(--gap);"></div>
+          <div class="token-info">
+            <div class="token-name">colors.gap</div>
+            <div class="token-role">Honest Slate Gray (Never Punishing)</div>
+            <div class="token-val">rgba(148, 163, 184, 0.50)</div>
+          </div>
+        </div>
+        <div class="token-card" onclick="copyToken('colors.danger')">
+          <div class="swatch" style="background: var(--danger);"></div>
+          <div class="token-info">
+            <div class="token-name">colors.danger</div>
+            <div class="token-role">Soft Coral Red (Errors & Delete Only)</div>
+            <div class="token-val">#F87171</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: COMPONENTS SHOWCASE -->
+    <section id="components">
+      <div class="section-header">
+        <h2 class="section-title">Interactive Component Showcase</h2>
+        <p class="section-desc">Try interacting with buttons, tasks, day circles, and streak badges to see live state transitions.</p>
+      </div>
+
+      <div class="sandbox-grid">
+        <!-- Interactive Buttons & Chips -->
+        <div class="preview-card">
+          <div class="card-title">Interactive Buttons & Chips</div>
+          <div class="btn-row">
+            <button class="btn btn-primary" onclick="showToast('Primary Button clicked')">Create Journey</button>
+            <button class="btn btn-secondary" onclick="showToast('Secondary Glass clicked')">Secondary</button>
+            <button class="btn btn-ghost" onclick="showToast('Ghost Button clicked')">Cancel</button>
+            <button class="btn btn-danger" onclick="showToast('Danger Button clicked')">Delete</button>
+          </div>
+          <div class="chip-row">
+            <div class="chip selected" onclick="toggleChip(this)">✦ Active Journey</div>
+            <div class="chip" onclick="toggleChip(this)">Completed</div>
+            <div class="chip" onclick="toggleChip(this)">Gregorian</div>
+            <div class="chip" onclick="toggleChip(this)">Hijri Mode</div>
+          </div>
+        </div>
+
+        <!-- Interactive Task Card -->
+        <div class="preview-card">
+          <div class="card-title">Task Cards (Click to complete)</div>
+          <div class="task-card" onclick="toggleTask(this)">
+            <div class="task-checkbox">✓</div>
+            <div class="task-content">
+              <div class="task-title">Fajr in Congregation</div>
+              <div class="task-note">Sunnah before Fajr + Takbirat al-Ihram</div>
+            </div>
+            <div class="task-strip"></div>
+          </div>
+
+          <div class="task-card completed" onclick="toggleTask(this)">
+            <div class="task-checkbox">✓</div>
+            <div class="task-content">
+              <div class="task-title">100x Astaghfirullah</div>
+              <div class="task-note">Morning remembrance</div>
+            </div>
+            <div class="task-strip"></div>
+          </div>
+        </div>
+
+        <!-- Day Circles (Grid) -->
+        <div class="preview-card">
+          <div class="card-title">Day Grid Status Circles</div>
+          <div class="circles-row">
+            <div class="circle-item">
+              <div class="day-circle sealed">12</div>
+              <span>Sealed</span>
+            </div>
+            <div class="circle-item">
+              <div class="day-circle today">13</div>
+              <span>Today (Pulse)</span>
+            </div>
+            <div class="circle-item">
+              <div class="day-circle made-up">14</div>
+              <span>Made Up</span>
+            </div>
+            <div class="circle-item">
+              <div class="day-circle gap">-</div>
+              <span>Gap (Slate)</span>
+            </div>
+            <div class="circle-item">
+              <div class="day-circle future">16</div>
+              <span>Future</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Streak Badges & Journey Bento Card -->
+        <div class="preview-card">
+          <div class="card-title">Streak Glow & Bento Card</div>
+          <div class="streaks-row">
+            <div class="streak-badge">🌙 2 days</div>
+            <div class="streak-badge level-1">🌙 7 days</div>
+            <div class="streak-badge level-3">🌙 21 days ✦</div>
+          </div>
+
+          <div class="journey-bento">
+            <div class="journey-bento-top">
+              <div class="journey-name">40 Days of Tahajjud</div>
+              <div class="journey-tag">HIJRI</div>
+            </div>
+            <div class="journey-bento-body">
+              <div class="ring-wrapper">
+                <svg class="ring-svg" width="58" height="58">
+                  <circle class="ring-bg" cx="29" cy="29" r="24" stroke-width="4.5" fill="none" />
+                  <circle class="ring-fill" cx="29" cy="29" r="24" stroke-width="4.5" fill="none"
+                          stroke-dasharray="150.79" stroke-dashoffset="45" />
+                </svg>
+                <span class="ring-text">70%</span>
+              </div>
+              <div class="journey-stats">
+                <div class="journey-day">Day 28 of 40</div>
+                <div class="journey-status-pill">✦ Sealed Today</div>
+              </div>
+              <div class="streak-badge level-1" style="font-size: 12px; padding: 4px 10px;">
+                🌙 28
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3 & 4: REDESIGNED JOURNEY CREATION & DUAL CALENDAR -->
+    <section id="calendar-ux">
+      <div class="section-header">
+        <h2 class="section-title">Redesigned Journey Creation & Dual Calendar</h2>
+        <p class="section-desc">
+          No more clunky "Pick / View on Calendar" or missing Hijri views. Experience a true native Hijri monthly grid side-by-side with Gregorian!
+        </p>
+      </div>
+
+      <div class="interactive-demo-container">
+        <!-- 1. Journey Name (No Asterisk) -->
+        <div class="form-group">
+          <label class="form-label">Journey Name</label>
+          <input type="text" class="form-input" value="40 Days of Tahajjud & Fajr" />
+        </div>
+
+        <!-- 2. Calendar Mode Selection -->
+        <div class="form-group">
+          <label class="form-label">Calendar Mode</label>
+          <div class="chip-row">
+            <div id="mode-gregorian" class="chip" onclick="switchCalendarMode('gregorian')">Gregorian Calendar</div>
+            <div id="mode-hijri" class="chip selected" onclick="switchCalendarMode('hijri')">✦ Hijri Calendar (Umm al-Qura)</div>
+          </div>
+        </div>
+
+        <!-- 3. Timeline Hero Range Cards -->
+        <div class="form-group">
+          <label class="form-label">Timeline & Range</label>
+          <div class="date-hero-grid">
+            <div id="start-card" class="date-card active-picker" onclick="activatePicker('start')">
+              <div class="date-card-label">Start Date</div>
+              <div id="start-primary" class="date-card-primary">1 Rabi' al-Thani 1448</div>
+              <div id="start-secondary" class="date-card-secondary">12 Oct 2026</div>
+            </div>
+
+            <div class="duration-indicator">
+              <span id="duration-badge">✦ 40 Days Duration</span>
+            </div>
+
+            <div id="end-card" class="date-card" onclick="activatePicker('end')">
+              <div class="date-card-label">End Date</div>
+              <div id="end-primary" class="date-card-primary">10 Jumada al-Ula 1448</div>
+              <div id="end-secondary" class="date-card-secondary">20 Nov 2026</div>
+            </div>
+          </div>
+
+          <!-- Quick Presets -->
+          <div class="presets-row">
+            <span class="presets-label">Quick Presets:</span>
+            <div class="preset-pill" onclick="applyPreset(7)">7 Days</div>
+            <div class="preset-pill" onclick="applyPreset(21)">21 Days</div>
+            <div class="preset-pill" onclick="applyPreset(30)">30 Days</div>
+            <div class="preset-pill active" onclick="applyPreset(40)">40 Days</div>
+            <div class="preset-pill" onclick="applyPreset(30, 'Ramadan')">Full Ramadan (30d)</div>
+          </div>
+        </div>
+
+        <!-- 4. Interactive Integrated Calendar Grid (Gregorian & Hijri) -->
+        <div class="calendar-container">
+          <div class="calendar-header">
+            <div>
+              <div id="cal-month-title" class="calendar-month-title">Rabi' al-Thani 1448</div>
+              <div id="cal-month-sub" class="calendar-month-sub">October 2026 · 30 Days</div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="cal-nav-btn" onclick="prevMonth()">‹</button>
+              <button class="cal-nav-btn" onclick="nextMonth()">›</button>
+            </div>
+          </div>
+
+          <div class="calendar-grid" id="calendar-grid">
+            <!-- Dynamic days will be rendered here by JS -->
+          </div>
+        </div>
+
+        <!-- 5. Daily Tasks (No Asterisks) -->
+        <div class="form-group" id="form-demo">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label class="form-label" style="margin-bottom: 0;">Daily Tasks</label>
+            <button class="btn btn-ghost" style="padding: 4px 12px; font-size: 12px;" onclick="addTask()">+ Add Task</button>
+          </div>
+
+          <div class="task-manager" id="task-list">
+            <div class="task-input-item">
+              <span style="color: var(--gold); font-size: 14px;">1.</span>
+              <input type="text" class="task-input-field" value="Wake up 30 min before Fajr for Tahajjud" />
+              <button class="task-icon-btn" onclick="this.parentElement.remove()">✕</button>
+            </div>
+            <div class="task-input-item">
+              <span style="color: var(--gold); font-size: 14px;">2.</span>
+              <input type="text" class="task-input-field" value="Pray 2 Rak'ahs with Khushu'" />
+              <button class="task-icon-btn" onclick="this.parentElement.remove()">✕</button>
+            </div>
+            <div class="task-input-item">
+              <span style="color: var(--gold); font-size: 14px;">3.</span>
+              <input type="text" class="task-input-field" value="Fajr in congregation at Mosque" />
+              <button class="task-icon-btn" onclick="this.parentElement.remove()">✕</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div style="margin-top: 32px;">
+          <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 16px; font-size: 16px;"
+                  onclick="showToast('Journey created successfully!')">
+            Create Journey
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast">Token copied!</div>
+
+  <script>
+    // State
+    let currentMode = 'hijri'; // 'gregorian' or 'hijri'
+    let activeField = 'start'; // 'start' or 'end'
+    let startDayIndex = 1;
+    let endDayIndex = 11;
+    let currentMonth = 4; // 4 = Rabi al-Thani
+
+    const hijriMonths = [
+      'Muharram', 'Safar', "Rabi' al-Awwal", "Rabi' al-Thani",
+      'Jumada al-Ula', 'Jumada al-Thaniyah', 'Rajab', "Sha'ban",
+      'Ramadan', 'Shawwal', "Dhu al-Qi'dah", 'Dhu al-Hijjah'
+    ];
+
+    const gregMonths = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+
+    function copyToken(name) {
+      navigator.clipboard.writeText(name);
+      showToast('Copied: ' + name);
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+
+    function toggleChip(el) {
+      el.classList.toggle('selected');
+    }
+
+    function toggleTask(el) {
+      el.classList.toggle('completed');
+      showToast(el.classList.contains('completed') ? 'Task completed ✓' : 'Task unchecked');
+    }
+
+    function activatePicker(field) {
+      activeField = field;
+      document.getElementById('start-card').classList.toggle('active-picker', field === 'start');
+      document.getElementById('end-card').classList.toggle('active-picker', field === 'end');
+    }
+
+    function switchCalendarMode(mode) {
+      currentMode = mode;
+      document.getElementById('mode-gregorian').classList.toggle('selected', mode === 'gregorian');
+      document.getElementById('mode-hijri').classList.toggle('selected', mode === 'hijri');
+      renderCalendar();
+      updateDateCards();
+    }
+
+    function prevMonth() {
+      currentMonth = Math.max(1, currentMonth - 1);
+      renderCalendar();
+    }
+
+    function nextMonth() {
+      currentMonth = Math.min(12, currentMonth + 1);
+      renderCalendar();
+    }
+
+    function applyPreset(days, label) {
+      document.querySelectorAll('.preset-pill').forEach(p => p.classList.remove('active'));
+      event.target.classList.add('active');
+      endDayIndex = startDayIndex + days;
+      updateDateCards();
+      renderCalendar();
+      showToast(`Preset applied: ${days} days`);
+    }
+
+    function updateDateCards() {
+      const daysCount = Math.max(1, endDayIndex - startDayIndex + 1);
+      document.getElementById('duration-badge').innerText = `✦ ${daysCount} Days Duration`;
+
+      if (currentMode === 'hijri') {
+        const monthName = hijriMonths[currentMonth - 1];
+        document.getElementById('start-primary').innerText = `${startDayIndex} ${monthName} 1448`;
+        document.getElementById('start-secondary').innerText = `${startDayIndex + 11} Oct 2026`;
+        document.getElementById('end-primary').innerText = `${endDayIndex} ${monthName} 1448`;
+        document.getElementById('end-secondary').innerText = `${endDayIndex + 11} Nov 2026`;
+      } else {
+        const monthName = gregMonths[9]; // Oct
+        document.getElementById('start-primary').innerText = `${startDayIndex} ${monthName} 2026`;
+        document.getElementById('start-secondary').innerText = `${startDayIndex} Rabi' al-Thani 1448`;
+        document.getElementById('end-primary').innerText = `${endDayIndex} November 2026`;
+        document.getElementById('end-secondary').innerText = `${endDayIndex} Jumada al-Ula 1448`;
+      }
+    }
+
+    function selectDate(day) {
+      if (activeField === 'start') {
+        startDayIndex = day;
+        if (endDayIndex <= startDayIndex) endDayIndex = startDayIndex + 7;
+        activatePicker('end');
+      } else {
+        if (day < startDayIndex) {
+          startDayIndex = day;
+        } else {
+          endDayIndex = day;
+        }
+      }
+      updateDateCards();
+      renderCalendar();
+    }
+
+    function renderCalendar() {
+      const grid = document.getElementById('calendar-grid');
+      grid.innerHTML = '';
+
+      // Weekday headers
+      const weekdays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+      weekdays.forEach(w => {
+        const h = document.createElement('div');
+        h.className = 'weekday-header';
+        h.innerText = w;
+        grid.appendChild(h);
+      });
+
+      // Update titles
+      if (currentMode === 'hijri') {
+        document.getElementById('cal-month-title').innerText = `${hijriMonths[currentMonth - 1]} 1448 AH`;
+        document.getElementById('cal-month-sub').innerText = 'October 2026 · 30 Days (Umm al-Qura)';
+      } else {
+        document.getElementById('cal-month-title').innerText = 'October 2026';
+        document.getElementById('cal-month-sub').innerText = "Rabi' al-Thani 1448 · 31 Days";
+      }
+
+      // Empty offset days
+      for (let i = 0; i < 4; i++) {
+        const empty = document.createElement('div');
+        empty.className = 'cal-day-cell empty';
+        grid.appendChild(empty);
+      }
+
+      // 30 Days
+      const totalDays = currentMode === 'hijri' ? 30 : 31;
+      for (let d = 1; d <= totalDays; d++) {
+        const cell = document.createElement('div');
+        cell.className = 'cal-day-cell';
+
+        const isStart = d === startDayIndex;
+        const isEnd = d === endDayIndex;
+        const inRange = d >= startDayIndex && d <= endDayIndex;
+
+        if (isStart) cell.classList.add('start-day');
+        else if (isEnd) cell.classList.add('end-day');
+        else if (inRange) cell.classList.add('in-range');
+
+        const primaryText = d;
+        const secondaryText = currentMode === 'hijri' ? (d + 11 > 31 ? d - 20 : d + 11) : (d);
+
+        cell.innerHTML = `
+          <span class="cal-day-primary">${primaryText}</span>
+          <span class="cal-day-sub">${secondaryText}</span>
+        `;
+
+        cell.onclick = () => selectDate(d);
+        grid.appendChild(cell);
+      }
+    }
+
+    function addTask() {
+      const list = document.getElementById('task-list');
+      const count = list.children.length + 1;
+      const item = document.createElement('div');
+      item.className = 'task-input-item';
+      item.innerHTML = `
+        <span style="color: var(--gold); font-size: 14px;">${count}.</span>
+        <input type="text" class="task-input-field" placeholder="Enter task title" />
+        <button class="task-icon-btn" onclick="this.parentElement.remove()">✕</button>
+      `;
+      list.appendChild(item);
+      item.querySelector('input').focus();
+    }
+
+    // Initial render
+    renderCalendar();
+    updateDateCards();
+  </script>
+</body>
+</html>

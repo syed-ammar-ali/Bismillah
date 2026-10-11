@@ -70,3 +70,62 @@ export function fromHijri(
 export function getHijriDaysInMonth(hy: number, hm: number): number {
   return umalqura.$.getDaysInMonth(hy, hm);
 }
+
+export interface HijriGridDay {
+  year: number;
+  month: number;
+  day: number;
+  hijriDateString: string;
+  gregorianDateString: string;
+  gregorianDay: number;
+  weekday: number;
+}
+
+export interface HijriMonthGrid {
+  year: number;
+  month: number;
+  monthName: string;
+  totalDays: number;
+  firstDayWeekday: number;
+  days: HijriGridDay[];
+}
+
+export function getHijriMonthGrid(
+  hy: number,
+  hm: number,
+  adjustment: -1 | 0 | 1 = 0,
+): HijriMonthGrid {
+  const totalDays = getHijriDaysInMonth(hy, hm);
+  const monthIndex = hm - 1;
+  const monthName = HIJRI_MONTH_NAMES[monthIndex] ?? `Month ${hm}`;
+
+  const firstDayGreg = fromHijri(hy, hm, 1, adjustment).gregorianDate;
+  const firstParsed = parseISODate(firstDayGreg);
+  const firstDayWeekday = firstParsed.getDay();
+
+  const days: HijriGridDay[] = [];
+  const pad = (n: number) => n.toString().padStart(2, '0');
+
+  for (let d = 1; d <= totalDays; d++) {
+    const greg = fromHijri(hy, hm, d, adjustment).gregorianDate;
+    const gregParsed = parseISODate(greg);
+    days.push({
+      year: hy,
+      month: hm,
+      day: d,
+      hijriDateString: `${hy}-${pad(hm)}-${pad(d)}`,
+      gregorianDateString: greg,
+      gregorianDay: gregParsed.getDate(),
+      weekday: gregParsed.getDay(),
+    });
+  }
+
+  return {
+    year: hy,
+    month: hm,
+    monthName,
+    totalDays,
+    firstDayWeekday,
+    days,
+  };
+}

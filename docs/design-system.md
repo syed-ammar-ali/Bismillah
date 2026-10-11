@@ -1,29 +1,36 @@
 # Design System
 
-Mood: calm, sacred, minimal. Deep night sky, stark white/silver accents, crescent motif. Monochrome dark theme only.
+Mood: calm, sacred, nocturnal elegance. Deep obsidian night sky, warm sacred gold/champagne accents, spiritual jewel tones, crescent motif. Dark theme optimized for OLED depth and contrast without flat monochrome monotony.
 
 ## Colors
 
-| Token | Hex | Use |
+| Token | Hex / Value | Use |
 |---|---|---|
-| bg | #000000 | App background (OLED black) |
-| glass | rgba(255, 255, 255, 0.04) | Cards |
-| glassStrong | rgba(255, 255, 255, 0.07) | Raised cards, sheets |
-| border | rgba(255, 255, 255, 0.08) | Dividers, empty circles |
-| gold (primary) | #FFFFFF | Primary accent, sealed days, rings |
-| goldSoft | #E5E5E5 | Highlights, glow core |
-| goldDim | rgba(255, 255, 255, 0.20) | Fills on muted items |
-| text | #F5F5F5 | Primary text (near-white) |
-| textMuted | rgba(255, 255, 255, 0.35) | Secondary text |
-| gap | rgba(161, 161, 170, 0.6) | Gap markers |
-| danger | #F87171 | Delete only (never for gaps) |
-| success | #FFFFFF | Same as primary (keeps it cohesive) |
+| bg | #08090E | Deep Obsidian Midnight Ink (OLED base) |
+| bgElevated | #0E121C | Celestial Slate (screen elevation, sheets) |
+| bgSubtle | #141A26 | Deep container fill |
+| glass | rgba(255, 255, 255, 0.045) | Card & item base fill |
+| glassStrong | rgba(255, 255, 255, 0.075) | Raised cards, sheets |
+| glassBorder | rgba(255, 255, 255, 0.09) | Dividers, empty circles |
+| glassBorderGold | rgba(229, 184, 105, 0.22) | Active / highlighted border |
+| gold (primary) | #E5B869 | Sacred Warm Gold — primary accent, sealed days, rings |
+| goldSoft | #F5DCA3 | Pale Champagne — highlights, glow core |
+| goldDim | rgba(229, 184, 105, 0.22) | Amber Glow — fills on muted/in-range items |
+| goldGlow | rgba(229, 184, 105, 0.12) | Ambient luminous radiance |
+| emerald | #10B981 | Sacred Emerald — completion, peace, growth |
+| azure | #38BDF8 | Celestial Azure — night sky, calendar highlights |
+| amethyst | #A78BFA | Royal Amethyst — tahajjud, spiritual tiers |
+| copper | #F97316 | Warm Terracotta — active streak momentum |
+| text | #F8FAFC | Crisp near-white text |
+| textSecondary | #94A3B8 | Slate secondary text, subtitles |
+| textMuted | rgba(255, 255, 255, 0.38) | Placeholders, inactive hints |
+| gap | rgba(148, 163, 184, 0.50) | Honest slate grey (never punishing) |
+| danger | #F87171 | Soft Coral Red — delete & errors only |
+| success | #10B981 | Sacred Emerald — achievement |
 
-Journey colors (calendar dots, max 4 distinct, then repeat): #FFFFFF stark white, #A3A3A3 neutral gray, #525252 dark gray, #D4D4D8 light silver.
+Journey colors (calendar dots, 6 harmonious jewel tones): #E5B869 Sacred Gold, #10B981 Emerald, #38BDF8 Celestial Azure, #A78BFA Royal Amethyst, #F97316 Terracotta, #F472B6 Rose Quartz.
 
-Gaps are deliberately muted grey, not red. Honest, not punishing.
-
-*Note: In the codebase, the color variables are still named `gold`, `goldSoft`, `goldDim`, etc., for backwards compatibility, but they represent the white/silver monochrome palette.*
+Gaps are deliberately muted slate grey, not red. Honest, not punishing.
 
 ## Typography
 

@@ -10,6 +10,7 @@ module.exports = [
       'android/**',
       'ios/**',
       '**/*.d.ts',
+      '**/*.html',
     ],
   },
   {

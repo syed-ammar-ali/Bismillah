@@ -4,45 +4,57 @@
 
 export const colors = {
   // ── Backgrounds ────────────────────────────────────────────────────
-  bg: '#000000',                         // OLED perfect black
-  bgElevated: '#0A0A0A',                 // screen-level elevation
+  bg: '#08090E',                         // Deep Obsidian Midnight Ink
+  bgElevated: '#0E121C',                 // Screen elevation / modal background
+  bgSubtle: '#141A26',                   // Deep container fill
 
   // ── Glass surfaces (simulated — no backdropBlur on Android) ────────
-  // On OLED: the true-black behind + these dark translucent layers = glass
-  glass: 'rgba(255, 255, 255, 0.04)',    // card/sheet base fill
-  glassStrong: 'rgba(255, 255, 255, 0.07)', // raised cards
-  glassBorder: 'rgba(255, 255, 255, 0.08)', // hairline border on glass
+  glass: 'rgba(255, 255, 255, 0.045)',    // card/sheet base fill
+  glassStrong: 'rgba(255, 255, 255, 0.075)', // raised cards
+  glassBorder: 'rgba(255, 255, 255, 0.09)', // hairline border on glass
+  glassBorderGold: 'rgba(229, 184, 105, 0.22)', // active/gold-tinted border
   glassHighlight: 'rgba(255, 255, 255, 0.12)', // active/pressed state
 
   // Backwards-compat & semantic aliases
-  surface: 'rgba(255, 255, 255, 0.04)',
-  surfaceRaised: 'rgba(255, 255, 255, 0.07)',
-  surfaceGlass: 'rgba(255, 255, 255, 0.04)',
-  border: 'rgba(255, 255, 255, 0.08)',
-  borderSubtle: 'rgba(255, 255, 255, 0.08)',
+  surface: 'rgba(255, 255, 255, 0.045)',
+  surfaceRaised: 'rgba(255, 255, 255, 0.075)',
+  surfaceGlass: 'rgba(255, 255, 255, 0.045)',
+  border: 'rgba(255, 255, 255, 0.09)',
+  borderSubtle: 'rgba(255, 255, 255, 0.06)',
 
-  // ── Accents ────────────────────────────────────────────────────────
-  gold: '#FFFFFF',                       // Stark White — primary accent, buttons
-  goldSoft: '#E5E5E5',                   // Light Silver — highlights, secondary
-  goldDim: 'rgba(255, 255, 255, 0.20)',  // glow fills, backgrounds
-  goldGlow: 'rgba(255, 255, 255, 0.12)', // very faint ambient glow areas
+  // ── Sacred Gold / Amber (Primary Accents) ──────────────────────────
+  gold: '#E5B869',                       // Sacred Warm Gold — primary accent, buttons
+  goldSoft: '#F5DCA3',                   // Light Champagne — highlights, glow core
+  goldDim: 'rgba(229, 184, 105, 0.22)',  // glow fills, backgrounds
+  goldGlow: 'rgba(229, 184, 105, 0.12)', // ambient radiant glow
+
+  // ── Spiritual Jewel Accents (Non-monotonous dark mode) ──────────────
+  emerald: '#10B981',                    // Sacred Emerald — peace, completion, success
+  emeraldDim: 'rgba(16, 185, 129, 0.18)',// subtle emerald badge fill
+  azure: '#38BDF8',                      // Celestial Azure — night sky, calendar highlights
+  azureDim: 'rgba(56, 189, 248, 0.18)',  // subtle azure badge fill
+  amethyst: '#A78BFA',                   // Royal Amethyst — tahajjud, spiritual elevation
+  amethystDim: 'rgba(167, 139, 250, 0.18)', // subtle amethyst badge fill
+  copper: '#F97316',                     // Warm Terracotta / Amber — streak momentum
 
   // ── Text ───────────────────────────────────────────────────────────
-  text: '#F5F5F5',                       // Near-white, not harsh
-  textSecondary: '#A3A3A3',              // Labels, subtitles
-  textMuted: 'rgba(255, 255, 255, 0.35)', // Placeholders, hints
+  text: '#F8FAFC',                       // Crisp near-white
+  textSecondary: '#94A3B8',              // Slate secondary labels, subtitles
+  textMuted: 'rgba(255, 255, 255, 0.38)', // Placeholders, hints
 
   // ── Semantic ───────────────────────────────────────────────────────
-  gap: 'rgba(161, 161, 170, 0.6)',       // Neutral gray — never punishing
-  danger: '#F87171',                     // Red 400 — errors only
-  success: '#FFFFFF',                    // same as primary = achievement
+  gap: 'rgba(148, 163, 184, 0.50)',       // Honest slate gray — never punishing
+  danger: '#F87171',                     // Red 400 — errors and destructive only
+  success: '#10B981',                    // Emerald — achievement
 } as const;
 
 // Journey accent colors (one per journey card dot in calendar view)
 export const journeyColors = [
-  '#FFFFFF', // stark white
-  '#A3A3A3', // neutral gray
-  '#525252', // dark gray
-  '#D4D4D8', // light silver
+  '#E5B869', // Sacred Gold
+  '#10B981', // Emerald Green
+  '#38BDF8', // Celestial Azure
+  '#A78BFA', // Royal Amethyst
+  '#F97316', // Warm Terracotta
+  '#F472B6', // Rose Quartz
 ] as const;
 
